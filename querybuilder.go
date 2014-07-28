@@ -3,7 +3,6 @@ package goose
 import (
 	"crypto/sha1"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"strings"
@@ -15,6 +14,12 @@ type M map[string]interface{}
 type Facet struct {
 	Terms M `json:"terms"`
 }
+
+type Location struct {
+	Lat  float64 `json:"lat,omitempty"`
+	Long float64 `json:"lon,omitempty"`
+}
+
 
 // QueryBuilder has helper functions to build JSON query strings
 // compatible with the elasticsearch engine.
@@ -33,10 +38,7 @@ type QueryBuilder struct {
 				GeoDistance struct {
 					distance uint
 					Distance string `json:"distance,omitempty"`
-					Location struct {
-						Lat  float64 `json:"lat,omitempty"`
-						Long float64 `json:"lon,omitempty"`
-					} `json:"location"`
+					Location Location `json:"location"`
 				} `json:"geo_distance"`
 				GeoPolygon struct {
 					Location struct {
@@ -344,60 +346,60 @@ func (qb *QueryBuilder) Checksum() (string, error) {
 
 // ParseQuerySet translates the queryset constraints into a suitable data
 // structure suitable for later JSON conversion.
-func (qb *QueryBuilder) ParseQuerySet(qs *QuerySet) error {
-	if qs == nil {
-		return errors.New("can't parse nil queryset")
-	}
-	qb.From = int(qs.offset)
-	qb.Size = int(qs.limit)
+// func (qb *QueryBuilder) ParseQuerySet(qs *QuerySet) error {
+// 	if qs == nil {
+// 		return errors.New("can't parse nil queryset")
+// 	}
+// 	qb.From = int(qs.offset)
+// 	qb.Size = int(qs.limit)
 
-	if qs.minprice > 0 && qs.maxprice > 0 {
-		qb.AddFloatRange("price", qs.minprice, qs.maxprice)
-	} else if qs.minprice > 0 {
-		qb.AddGreaterThanRange("price", qs.minprice)
-	} else if qs.maxprice > 0 {
-		qb.AddLesserThanRange("price", qs.maxprice)
-	}
+// 	if qs.minprice > 0 && qs.maxprice > 0 {
+// 		qb.AddFloatRange("price", qs.minprice, qs.maxprice)
+// 	} else if qs.minprice > 0 {
+// 		qb.AddGreaterThanRange("price", qs.minprice)
+// 	} else if qs.maxprice > 0 {
+// 		qb.AddLesserThanRange("price", qs.maxprice)
+// 	}
 
-	if qs.category > 0 {
-		qb.AddRange("category", qs.category, qs.category)
-	}
+// 	if qs.category > 0 {
+// 		qb.AddRange("category", qs.category, qs.category)
+// 	}
 
-	if qs.btype > 0 {
-		qb.AddRange("type", qs.btype, qs.btype)
-	}
+// 	if qs.btype > 0 {
+// 		qb.AddRange("type", qs.btype, qs.btype)
+// 	}
 
-	if qs.from != nil {
-		// Must geocode this location
-		// TODO: implement a caching system?
-		gc := NewMapQuestGeoCoder()
-		gps, err := gc.Geocode(qs.from)
-		if err != nil {
-			return err
-		}
-		if gps != nil {
-			qb.Query.Filtered.Filter.GeoDistance.distance = qs.radius
-			qb.Query.Filtered.Filter.GeoDistance.Distance = fmt.Sprintf("%dkm", qs.radius)
-			qb.Query.Filtered.Filter.GeoDistance.Location.Lat = gps.Lat
-			qb.Query.Filtered.Filter.GeoDistance.Location.Long = gps.Long
-		}
-	}
+// 	if qs.from != nil {
+// 		// Must geocode this location
+// 		// TODO: implement a caching system?
+// 		gc := NewMapQuestGeoCoder()
+// 		gps, err := gc.Geocode(qs.from)
+// 		if err != nil {
+// 			return err
+// 		}
+// 		if gps != nil {
+// 			qb.Query.Filtered.Filter.GeoDistance.distance = qs.radius
+// 			qb.Query.Filtered.Filter.GeoDistance.Distance = fmt.Sprintf("%dkm", qs.radius)
+// 			qb.Query.Filtered.Filter.GeoDistance.Location.Lat = gps.Lat
+// 			qb.Query.Filtered.Filter.GeoDistance.Location.Long = gps.Long
+// 		}
+// 	}
 
-	if qs.coordinates != nil {
-		qb.Query.Filtered.Filter.GeoPolygon.Location.Points = qs.coordinates
-	}
+// 	if qs.coordinates != nil {
+// 		qb.Query.Filtered.Filter.GeoPolygon.Location.Points = qs.coordinates
+// 	}
 
-	switch qs.orderBy {
-	case ByDate:
-		qb.Sort = append(qb.Sort, M{"creation": map[string]string{"order": "asc"}})
-	case ByPrice:
-		qb.Sort = append(qb.Sort, M{"price": map[string]string{"order": "asc"}})
-	case ByPrice | ReverseSort:
-		qb.Sort = append(qb.Sort, M{"price": map[string]string{"order": "desc"}})
-	case ByDate | ReverseSort:
-		qb.Sort = append(qb.Sort, M{"creation": map[string]string{"order": "desc"}})
-	default:
-		qb.Sort = append(qb.Sort, M{"creation": map[string]string{"order": "asc"}})
-	}
-	return nil
-}
+// 	switch qs.orderBy {
+// 	case ByDate:
+// 		qb.Sort = append(qb.Sort, M{"creation": map[string]string{"order": "asc"}})
+// 	case ByPrice:
+// 		qb.Sort = append(qb.Sort, M{"price": map[string]string{"order": "asc"}})
+// 	case ByPrice | ReverseSort:
+// 		qb.Sort = append(qb.Sort, M{"price": map[string]string{"order": "desc"}})
+// 	case ByDate | ReverseSort:
+// 		qb.Sort = append(qb.Sort, M{"creation": map[string]string{"order": "desc"}})
+// 	default:
+// 		qb.Sort = append(qb.Sort, M{"creation": map[string]string{"order": "asc"}})
+// 	}
+// 	return nil
+// }

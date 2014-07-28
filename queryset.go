@@ -29,19 +29,6 @@ type QuerySet struct {
 	offset             uint // Starting offset inside the result search
 }
 
-type Location struct {
-	FullAddress string
-}
-
-// Equals compare 2 locations. src and dst locations are equal if the content of every
-// field in src matches the content of the same field name in the dst location.
-func (src *Location) Equals(dst *Location) bool {
-	if dst == nil {
-		return false
-	}
-	return src.FullAddress == dst.FullAddress
-}
-
 type SortCriteria int
 
 const (
