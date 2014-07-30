@@ -33,7 +33,7 @@ func TestSearch(t *testing.T) {
 	}
 	time.Sleep(1 * time.Second)
 
-	rset, err := es.Search(&dummySet[0], "")
+	rset, err := es.Search(&dummySet[0], nil)
 	if err != nil {
 		t.Error("Search fails: %v", err)
 	}

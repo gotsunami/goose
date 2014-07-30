@@ -24,6 +24,10 @@ type Location struct {
 	Long float64 `json:"lon,omitempty"`
 }
 
+type BoundingBox struct {
+	TopLeft     Location `json:"top_left"`
+	BottomRight Location `json:"bottom_right"`
+}
 
 // QueryBuilder has helper functions to build JSON query strings
 // compatible with the elasticsearch engine.
@@ -39,6 +43,7 @@ type QueryBuilder struct {
 				} `json:"bool"`
 			} `json:"query"`
 			Filter struct {
+				GeoBoundingBox M `json:"geo_bounding_box"`
 				GeoDistance struct {
 					distance uint
 					Distance string `json:"distance,omitempty"`
@@ -300,6 +305,14 @@ func (qb *QueryBuilder) AddLesserThanRange(name string, to float64) *QueryBuilde
 	return qb
 }
 
+func (qb *QueryBuilder) AddGeoBoundingBoxFilter(name string, topleft, bottomright Location) *QueryBuilder {
+
+	//    qb.Sort = append(qb.Sort, M{"creation": map[string]string{"order":"desc"}})
+	qb.Query.Filtered.Filter.GeoBoundingBox = M{name: BoundingBox { topleft, bottomright }}
+
+	return qb
+}
+
 // ToJSON marshalize the QueryBuilder structure and returns a suitable JSON query string.
 func (qb *QueryBuilder) ToJSON() (string, error) {
 	query, err := json.Marshal(qb)
@@ -315,6 +328,7 @@ func (qb *QueryBuilder) ToJSON() (string, error) {
 	// which are not valid and causes a NullPointerException in ES.
 	q = strings.Replace(q, `"geo_polygon":{"location":{"points":null}}`, "", 1)
 	q = strings.Replace(q, `"geo_polygon":{"location":{"points":[]}}`, "", 1)
+	q = strings.Replace(q, `"geo_bounding_box":null,`, "", 1)
 	q = strings.Replace(q, `"geo_distance":{"location":{}}`, "", 1)
 	q = strings.Replace(q, `{,`, "{", 1)
 	q = strings.Replace(q, `,}`, "}", 1)
@@ -347,6 +361,8 @@ func (qb *QueryBuilder) Checksum() (string, error) {
 	io.WriteString(s, j)
 	return fmt.Sprintf("%x", s.Sum(nil)), nil
 }
+
+
 
 // ParseQuerySet translates the queryset constraints into a suitable data
 // structure suitable for later JSON conversion.
