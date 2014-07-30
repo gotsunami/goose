@@ -175,6 +175,7 @@ type ElasticSearch struct {
 // NewElasticSearch creates a new ElasticSearch instance which is also
 // assigned to the Engine variable. The uri parameter is used to access
 // the ElasticSearch web service, i.e http://localhost:9200/<index>
+// default search mode is typeSearch
 func NewElasticSearch(uri *url.URL) (*ElasticSearch, error) {
 	if uri == nil {
 		return nil, errors.New("nil ES path")
@@ -185,7 +186,7 @@ func NewElasticSearch(uri *url.URL) (*ElasticSearch, error) {
 		serverUrl: uri.Scheme + "://" + uri.Host,
 		basePath:  strictSlash(uri.Path),
 		lock:      make(chan bool, 1),
-		stype:     "",
+		stype:     typeSearch,
 	}
 	return Engine, Engine.CreateIndexIfNeeded()
 }

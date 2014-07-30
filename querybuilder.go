@@ -15,6 +15,10 @@ type Facet struct {
 	Terms M `json:"terms"`
 }
 
+type Doc struct {
+	Doc interface{} `json:"doc"`
+}
+
 type Location struct {
 	Lat  float64 `json:"lat,omitempty"`
 	Long float64 `json:"lon,omitempty"`

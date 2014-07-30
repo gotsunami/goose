@@ -70,7 +70,7 @@ func (se *ElasticSearch) Insert(object ElasticObject) error {
 	return err
 }
 
-// updates an element in the index.
+// updates an element in the index. TODO: check _update
 func (se *ElasticSearch) Update(object ElasticObject) error {
 	if se == nil {
 		return errors.New("Search Engine has not been initialized")
@@ -79,13 +79,13 @@ func (se *ElasticSearch) Update(object ElasticObject) error {
 	if err != nil {
 		return err
 	}
-	jsondata, err := json.Marshal(object)
+	jsondata, err := json.Marshal(Doc{Doc:object})
 	if err != nil {
 		return err
 	}
 	body := strings.NewReader(string(jsondata))
 
-	_, err = se.sendRequest(PUT, se.serverUrl+se.basePath+path+object.Key(), body)	
+	_, err = se.sendRequest(POST, se.serverUrl+se.basePath+path+strictSlash(object.Key())+actionUpdate, body)	
 	return err
 }
 

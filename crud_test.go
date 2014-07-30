@@ -9,8 +9,7 @@ import (
 )
 
 // consts and types are all defined in es_test.go
-
-func TestInsert(t *testing.T) {
+func TestCrudOperations(t *testing.T) {
 	u, _ := url.Parse(uri+index)
 	es, _ := NewElasticSearch(u)
 	defer es.DeleteIndex()

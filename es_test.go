@@ -14,9 +14,9 @@ const (
 )
 
 type DummyObject struct {
-	Id			int
-	Description string
-	Len			float64
+	Id			int		`json:"id"`
+	Description string  `json:"description"`
+	Len			float64 `json:"len"`
 }
 
 func (d *DummyObject) Key() string {
