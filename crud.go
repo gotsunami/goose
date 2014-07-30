@@ -85,7 +85,7 @@ func (se *ElasticSearch) Update(object ElasticObject) error {
 	}
 	body := strings.NewReader(string(jsondata))
 
-	_, err = se.sendRequest(PUT, se.serverUrl+se.basePath+path+object.Key()+actionUpdate, body)	
+	_, err = se.sendRequest(PUT, se.serverUrl+se.basePath+path+object.Key(), body)	
 	return err
 }
 

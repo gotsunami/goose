@@ -42,6 +42,14 @@ func TestInsert(t *testing.T) {
 		t.Error("Cannot update dummy object: %v", err)
 	}
 
+	found, err = es.Get(&bogus)
+	if found == false || err != nil {
+		t.Error("Cannot get dummy object:", err)
+	}
+	if !reflect.DeepEqual(dummy, bogus) {
+		t.Error("Found dummy object has incorrect values, expected", dummy, ", got", bogus)
+	} 
+
 	if err := es.Delete(&dummy); err != nil {
 		t.Error("Cannot delete dummy object: %v", err)
 	}
