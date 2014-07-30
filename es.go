@@ -110,6 +110,15 @@ func strictSlash(in string) string {
 	return strictSlashAdder.ReplaceAllLiteralString(in, "/")
 }
 
+type result struct {
+	Index   string `json:"_index"`
+	Type    string `json:"_type"`
+	Id	    string `json:"_id"`
+	Version int	   `json:"_version"`
+	Found   bool   `json:"found"`
+	Src		interface{} `json:"_source"`
+}
+
 type resultFacet struct {
 	Total int `json:"total"`
 	Terms []M `json:"terms"`

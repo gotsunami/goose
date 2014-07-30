@@ -1,8 +1,27 @@
 package goose
 
-// import (
+ import (
+	 "fmt"
+
 // 	"testing"
-// )
+ )
+
+
+const (
+	uri = "http://localhost:9200/"
+	index = "gooseindex"
+	invalidindex = "UPPERCASE"
+)
+
+type DummyObject struct {
+	Id			int
+	Description string
+	Len			float64
+}
+
+func (d *DummyObject) Key() string {
+	return fmt.Sprintf("%d", d.Id)
+}
 
 // var sid ScrollId
 

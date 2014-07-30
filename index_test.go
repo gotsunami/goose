@@ -1,19 +1,16 @@
 package goose
 
 import (
-	"fmt"
 	"net/url"
+	"time"
 
 	"testing"
 )
 
-const (
-	index = "gooseindex"
-	invalidindex = "UPPERCASE"
-)
+// consts and types are all defined in es_test.go
 
 func TestCreateAndDeleteIndex(t *testing.T) {
-	u, _ := url.Parse(fmt.Sprintf("http://localhost:9200/%s", index))
+	u, _ := url.Parse(uri+index)
 	es, err := NewElasticSearch(u)
 	if err != nil {
 		t.Fatal("Cannot dial ES: %s", err.Error())
@@ -50,8 +47,9 @@ func TestCreateAndDeleteIndex(t *testing.T) {
 }
 
 func TestOpenAndCloseIndex(t *testing.T) {
-	u, _ := url.Parse(fmt.Sprintf("http://localhost:9200/%s", index))
+	u, _ := url.Parse(uri+index)
 	es, _ := NewElasticSearch(u)
+	time.Sleep(50 * time.Millisecond)
 
 	if err := es.OpenIndex(); err != nil {
 		t.Error("Cannot open index: %v", err.Error())
