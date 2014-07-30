@@ -17,13 +17,13 @@ func (se *ElasticSearch) Insert(object ElasticObject) error {
 	if se == nil {
 		return errors.New("Search Engine has not been initialized")
 	}
-	t := reflect.TypeOf(object)
+	t := reflect.Indirect(reflect.ValueOf(object)).Type()
 	if t == nil {
 		return errors.New("Inserted objects cannot be nil")
 	}
-	path := fmt.Sprintf("%s_%s/", strings.Replace(t.PkgPath(), "/", "_", -1), t.Name())
+	path := fmt.Sprintf("%s_%s/", strings.Replace(t.PkgPath(), "/", "_", -1), strings.ToLower(t.Name()))
 
-	if len(path) == 0 {
+	if len(path) == 2 {
 		return errors.New("Inserted objects cannot be unnamed types.")
 	}
 
