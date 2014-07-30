@@ -165,8 +165,7 @@ type ElasticSearch struct {
 
 // NewElasticSearch creates a new ElasticSearch instance which is also
 // assigned to the Engine variable. The uri parameter is used to access
-// the ElasticSearch web service, i.e http://localhost:9200/bf.
-// The gc parameter indicates the geocoding service to use.
+// the ElasticSearch web service, i.e http://localhost:9200/<index>
 func NewElasticSearch(uri *url.URL) (*ElasticSearch, error) {
 	if uri == nil {
 		return nil, errors.New("nil ES path")
@@ -179,7 +178,7 @@ func NewElasticSearch(uri *url.URL) (*ElasticSearch, error) {
 		lock:      make(chan bool, 1),
 		stype:     "",
 	}
-	return Engine, nil
+	return Engine, Engine.CreateIndexIfNeeded()
 }
 
 func (se *ElasticSearch) handleResponse(r *http.Response) error {
