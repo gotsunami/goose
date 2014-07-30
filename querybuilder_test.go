@@ -75,3 +75,27 @@ func TestAddLesserThanRange(t *testing.T) {
 		t.Errorf("wrong JSON. Expected\n%v\ngot\n%v", should, r)
 	}
 }
+
+func TestAddGeoDistance(t *testing.T) {
+	qb := NewQueryBuilder().AddGeoDistance("location", Location{Lat:0, Long:0}, 12, Kilometers)
+	r, err := qb.ToJSON()
+	if err != nil {
+		t.Error(err.Error())
+	}
+	should := `{"from":0,"size":10,"query":{"filtered":{"query":{"match_all":{}},"filter":{"geo_distance":{"distance":"12km","location":{"lat":0,"lon":0}}}}}}`
+	if r != should {
+		t.Errorf("wrong JSON. Expected\n%v\ngot\n%v", should, r)
+	}
+}
+
+func TestAddGeoBoundingBox(t *testing.T) {
+	qb := NewQueryBuilder().AddGeoBoundingBox("location", Location{Lat:10, Long:10}, Location{Lat:0, Long:0})
+	r, err := qb.ToJSON()
+	if err != nil {
+		t.Error(err.Error())
+	}
+	should := `{"from":0,"size":10,"query":{"filtered":{"query":{"match_all":{}},"filter":{"geo_bounding_box":{"location":{"top_left":{"lat":10,"lon":10},"bottom_right":{"lat":0,"lon":0}}}}}}}`
+	if r != should {
+		t.Errorf("wrong JSON. Expected\n%v\ngot\n%v", should, r)
+	}
+}

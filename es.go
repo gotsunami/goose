@@ -73,11 +73,15 @@ import (
 )
 
 const (
-	actionSearch       = "_search"
-	actionUpdate       = "_update"
+	// index actions
 	actionOpen		   = "_open"
 	actionClose		   = "_close"
 	actionStats		   = "_stats"
+	actionSettings     = "_settings"
+	// model actions
+	actionMapping	   = "_mapping"
+	actionSearch       = "_search"
+	actionUpdate       = "_update"
 	typeCount          = "?search_type=count"
 	typeScan           = "?search_type=scan&scroll=10m&size=10"
 	typeSearch         = "" // Basic search

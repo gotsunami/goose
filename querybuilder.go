@@ -3,9 +3,17 @@ package goose
 import (
 	"crypto/sha1"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"strings"
+)
+
+// defines units known by ES
+type Unit string
+const (
+	Meters		= Unit("m")
+	Kilometers  = Unit("km")
 )
 
 type M map[string]interface{}
@@ -20,8 +28,8 @@ type Doc struct {
 }
 
 type Location struct {
-	Lat  float64 `json:"lat,omitempty"`
-	Long float64 `json:"lon,omitempty"`
+	Lat  float64 `json:"lat"`
+	Long float64 `json:"lon"`
 }
 
 type BoundingBox struct {
@@ -44,29 +52,27 @@ type QueryBuilder struct {
 			} `json:"query"`
 			Filter struct {
 				GeoBoundingBox M `json:"geo_bounding_box"`
-				GeoDistance struct {
-					distance uint
-					Distance string `json:"distance,omitempty"`
-					Location Location `json:"location"`
-				} `json:"geo_distance"`
-				GeoPolygon struct {
-					Location struct {
-						Points [][2]float64 `json:"points"`
-					} `json:"location"`
-				} `json:"geo_polygon"`
+				GeoDistance M `json:"geo_distance"`
+				GeoPolygon M `json:"geo_polygon"`
 			} `json:"filter"`
 		} `json:"filtered"`
 	} `json:"query"`
-	Sort   []M              `json:"sort,omitempty"`
-	Facets map[string]Facet `json:"facets"`
+	Sort     []M              `json:"sort,omitempty"`
+	Facets   map[string]Facet `json:"facets"`
+	warnings []error
 }
 
 func NewQueryBuilder() *QueryBuilder {
 	qb := new(QueryBuilder)
 	qb.Size = 10 // ElasticSearch's default value
+	qb.warnings = make([]error, 0)
 	// Default sorting
 	//    qb.Sort = append(qb.Sort, M{"creation": map[string]string{"order":"desc"}})
 	return qb
+}
+
+func (qb *QueryBuilder) Warnings() []error {
+	return qb.warnings
 }
 
 // SetTermFacet defines a "facet" {"term"} facet
@@ -305,16 +311,88 @@ func (qb *QueryBuilder) AddLesserThanRange(name string, to float64) *QueryBuilde
 	return qb
 }
 
-func (qb *QueryBuilder) AddGeoBoundingBoxFilter(name string, topleft, bottomright Location) *QueryBuilder {
-
-	//    qb.Sort = append(qb.Sort, M{"creation": map[string]string{"order":"desc"}})
-	qb.Query.Filtered.Filter.GeoBoundingBox = M{name: BoundingBox { topleft, bottomright }}
+// AddGeoDistance defines a distance around a point to filter results
+//
+// For example, the following snippet
+//  qb := NewQueryBuilder().AddGeoDistance("hq.location", Location{Lat:43.454834, Long:3.757789}, 12, Kilometers)
+//  r, err := qb.ToJSON()
+// will expand to
+//  {
+//      "query": {
+//          "match_all": {}
+//      },
+//      "filter": {
+//				"geo_distance": {
+//						"distance":"12km",
+//						"hq.location": {
+//								"lat":43.454834,
+//								"lon":3.757789
+//						},
+//				}
+//		},
+//		"from": 0,
+//      "size": 10
+//  }
+func (qb *QueryBuilder) AddGeoDistance(name string, point Location, distance uint, unit Unit) *QueryBuilder {
+	qb.Query.Filtered.Filter.GeoDistance = M{"distance": fmt.Sprintf("%d%s", distance, unit), name: point}
 
 	return qb
 }
 
-// ToJSON marshalize the QueryBuilder structure and returns a suitable JSON query string.
+// AddGeoBoundingBox defines a bounding box with two points to filter results
+// Points are top left and bottom right corners
+//
+// For example, the following snippet
+//  qb := NewQueryBuilder().AddGeoBoundingBox("hq.location", Location{Lat:44, Long:4}, Location{Lat:43, Long:3})
+//  r, err := qb.ToJSON()
+// will expand to
+//  {
+//      "query": {
+//          "match_all": {}
+//      },
+//      "filter": {
+//				"geo_bounding_box": {
+//						"hq.location": {
+//								"top_left": {
+//										"lat":44,
+//										"lon":4
+//								},
+//								"bottom_right": {
+//										"lat":43,
+//										"lon":3
+//								}
+//						}
+//				}
+//		},
+//		"from": 0,
+//      "size": 10
+//  }
+func (qb *QueryBuilder) AddGeoBoundingBox(name string, topleft, bottomright Location) *QueryBuilder {
+	if topleft.Lat < bottomright.Lat {
+		qb.warnings = append(qb.warnings, errors.New(fmt.Sprintf("invalid bounding box, topleft latitude (%f) is lower than bottomright latitude (%f)", topleft.Lat, bottomright.Lat)))
+	}
+	if topleft.Long < bottomright.Long {
+		qb.warnings = append(qb.warnings, errors.New(fmt.Sprintf("invalid bounding box, topleft longitude (%f) is lower than bottomright longitude (%f)", topleft.Long, bottomright.Long)))
+	} 
+	qb.Query.Filtered.Filter.GeoBoundingBox = M{name: BoundingBox { topleft, bottomright }}
+	
+	return qb
+}
+
+// ToJSON marshalizes the QueryBuilder structure and returns a suitable JSON query
+// string if and only if no warnings were generated during build.
+// Usually, queries won't fail if warnings are produced but the reply will probably 
+// not be the expected result (see AddGeoBoundingBox)
 func (qb *QueryBuilder) ToJSON() (string, error) {
+	if len(qb.warnings) > 0 {
+		return "", errors.New("ToJSON() refuses to marshal queries with warnings!")
+	}
+	return qb.ForceToJSON()
+}
+
+// ForceToJSON marshalizes the QueryBuilder structure and returns a suitable JSON 
+// query string even if warnings were produced during build.
+func (qb *QueryBuilder) ForceToJSON() (string, error) {
 	query, err := json.Marshal(qb)
 	if err != nil {
 		return "", err
@@ -324,12 +402,11 @@ func (qb *QueryBuilder) ToJSON() (string, error) {
 	// for ES.
 	//
 	// Patch 1: patch the query by removing the empty filters
-	// ,"filter":{"geo_distance":{"location":{}},"geo_polygon":{"location":{"points":null}}}
+	// ,"filter":{"geo_bounding_box":null,"geo_distance":null,"geo_polygon":null:null}}}
 	// which are not valid and causes a NullPointerException in ES.
-	q = strings.Replace(q, `"geo_polygon":{"location":{"points":null}}`, "", 1)
-	q = strings.Replace(q, `"geo_polygon":{"location":{"points":[]}}`, "", 1)
+	q = strings.Replace(q, `"geo_polygon":null`, "", 1)
 	q = strings.Replace(q, `"geo_bounding_box":null,`, "", 1)
-	q = strings.Replace(q, `"geo_distance":{"location":{}}`, "", 1)
+	q = strings.Replace(q, `"geo_distance":null,`, "", 1)
 	q = strings.Replace(q, `{,`, "{", 1)
 	q = strings.Replace(q, `,}`, "}", 1)
 	q = strings.Replace(q, `,"filter":{}`, "", 1)
@@ -346,6 +423,7 @@ func (qb *QueryBuilder) ToJSON() (string, error) {
 	q = strings.Replace(q, `,"facets":null`, "", 1)
 	q = strings.Replace(q, `,"facets":{}`, "", 1)
 
+	fmt.Println(q)
 	return q, nil
 }
 
@@ -361,65 +439,3 @@ func (qb *QueryBuilder) Checksum() (string, error) {
 	io.WriteString(s, j)
 	return fmt.Sprintf("%x", s.Sum(nil)), nil
 }
-
-
-
-// ParseQuerySet translates the queryset constraints into a suitable data
-// structure suitable for later JSON conversion.
-// func (qb *QueryBuilder) ParseQuerySet(qs *QuerySet) error {
-// 	if qs == nil {
-// 		return errors.New("can't parse nil queryset")
-// 	}
-// 	qb.From = int(qs.offset)
-// 	qb.Size = int(qs.limit)
-
-// 	if qs.minprice > 0 && qs.maxprice > 0 {
-// 		qb.AddFloatRange("price", qs.minprice, qs.maxprice)
-// 	} else if qs.minprice > 0 {
-// 		qb.AddGreaterThanRange("price", qs.minprice)
-// 	} else if qs.maxprice > 0 {
-// 		qb.AddLesserThanRange("price", qs.maxprice)
-// 	}
-
-// 	if qs.category > 0 {
-// 		qb.AddRange("category", qs.category, qs.category)
-// 	}
-
-// 	if qs.btype > 0 {
-// 		qb.AddRange("type", qs.btype, qs.btype)
-// 	}
-
-// 	if qs.from != nil {
-// 		// Must geocode this location
-// 		// TODO: implement a caching system?
-// 		gc := NewMapQuestGeoCoder()
-// 		gps, err := gc.Geocode(qs.from)
-// 		if err != nil {
-// 			return err
-// 		}
-// 		if gps != nil {
-// 			qb.Query.Filtered.Filter.GeoDistance.distance = qs.radius
-// 			qb.Query.Filtered.Filter.GeoDistance.Distance = fmt.Sprintf("%dkm", qs.radius)
-// 			qb.Query.Filtered.Filter.GeoDistance.Location.Lat = gps.Lat
-// 			qb.Query.Filtered.Filter.GeoDistance.Location.Long = gps.Long
-// 		}
-// 	}
-
-// 	if qs.coordinates != nil {
-// 		qb.Query.Filtered.Filter.GeoPolygon.Location.Points = qs.coordinates
-// 	}
-
-// 	switch qs.orderBy {
-// 	case ByDate:
-// 		qb.Sort = append(qb.Sort, M{"creation": map[string]string{"order": "asc"}})
-// 	case ByPrice:
-// 		qb.Sort = append(qb.Sort, M{"price": map[string]string{"order": "asc"}})
-// 	case ByPrice | ReverseSort:
-// 		qb.Sort = append(qb.Sort, M{"price": map[string]string{"order": "desc"}})
-// 	case ByDate | ReverseSort:
-// 		qb.Sort = append(qb.Sort, M{"creation": map[string]string{"order": "desc"}})
-// 	default:
-// 		qb.Sort = append(qb.Sort, M{"creation": map[string]string{"order": "asc"}})
-// 	}
-// 	return nil
-// }
