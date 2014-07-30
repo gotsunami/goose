@@ -75,6 +75,9 @@ import (
 const (
 	actionSearch       = "_search"
 	actionUpdate       = "_update"
+	actionOpen		   = "_open"
+	actionClose		   = "_close"
+	actionStats		   = "_stats"
 	typeCount          = "?search_type=count"
 	typeScan           = "?search_type=scan&scroll=10m&size=10"
 	typeSearch         = "" // Basic search
@@ -94,12 +97,17 @@ var (
 	InvalidQueryError  = errors.New("Invalid search engine query.")
 	MissingSourceError = errors.New("Missing source in database after a CSE match!")
 	jsonStringCleaner  = regexp.MustCompile("(\"|\\|\b|\f|\n|\r|\t|/)")
+	strictSlashAdder   = regexp.MustCompile("[/]*$")
 )
 
 // removes failing escape chars (see http://json.org/)
 // TODO: add \u*
 func cleanJsonString(in string) string {
 	return jsonStringCleaner.ReplaceAllLiteralString(in, "")
+}
+
+func strictSlash(in string) string {
+	return strictSlashAdder.ReplaceAllLiteralString(in, "/")
 }
 
 type resultFacet struct {
@@ -163,10 +171,11 @@ func NewElasticSearch(uri *url.URL) (*ElasticSearch, error) {
 	if uri == nil {
 		return nil, errors.New("nil ES path")
 	}
+
 	// Always set global variable
 	Engine := &ElasticSearch{
 		serverUrl: uri.Scheme + "://" + uri.Host,
-		basePath:  uri.Path,
+		basePath:  strictSlash(uri.Path),
 		lock:      make(chan bool, 1),
 		stype:     "",
 	}
@@ -176,7 +185,7 @@ func NewElasticSearch(uri *url.URL) (*ElasticSearch, error) {
 func (se *ElasticSearch) handleResponse(r *http.Response) error {
 	if r.StatusCode != http.StatusOK && r.StatusCode != http.StatusCreated {
 		d, _ := ioutil.ReadAll(r.Body)
-		return errors.New(fmt.Sprintf("HTTP code %d, could not index element: %s", r.StatusCode, string(d)))
+		return errors.New(fmt.Sprintf("HTTP code %d, ES error: %s", r.StatusCode, string(d)))
 	}
 	return nil
 }
