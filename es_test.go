@@ -20,7 +20,7 @@ type DummyObject struct {
 }
 
 func (d *DummyObject) Key() string {
-	return fmt.Sprintf("%d", d.Id)
+	return "dummykey"
 }
 
 // var sid ScrollId
