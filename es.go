@@ -1,64 +1,9 @@
 /*
-Package cse implements communication with the ElasticSearch engine.
+Package goose implements an API with an ElasticSearch engine.
 
-Let's suppose a customer wants to find BMW cars whose price is lesser than 15,000€, only in the
-"Cars" category(2), with the results ordered by price from more expensive to less expensive
-ones.
+http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/index.html
 
-    qs := cse.NewQuerySet().MaxPrice(15000).Category(2).SortBy(cse.ByPrice|cse.ReverseSort)
-    items, err := Engine.FindItems(qs)
-    if err != nil {
-        return err
-    }
-
-Internally, FindItems() and FindBoutiques() use the QueryBuilder functions to make a suitable,
-well-formed JSON object.
-
-    qb := cse.NewQueryBuilder().AddQueryString("name", "bmw")
-    qs := cse.NewQuerySet().MaxPrice(15000).Category(2).SortBy(cse.ByPrice|cse.ReverseSort)
-    qb.ParseQuerySet(qs)
-    r, err := qb.ToJSON()
-
-This will expand to this following JSON object, suitable for searching with ElasticSearch:
-
-    {
-        "sort": [
-            {
-                "price": {
-                    "order": "desc"
-                }
-            }
-        ],
-        "query": {
-            "bool": {
-                "must": [
-                    {
-                        "query_string": {
-                            "query": "car",
-                            "default_field": "name"
-                        }
-                    },
-                    {
-                        "range": {
-                            "price": {
-                                "lte": 15000
-                            }
-                        }
-                    },
-                    {
-                        "range": {
-                            "category": {
-                                "to": 2,
-                                "from": 2
-                            }
-                        }
-                    }
-                ]
-            }
-        },
-        "from": 0,
-        "size": 10
-    }
+This package is based on docs for ES branch: 1.x
 */
 package goose
 
