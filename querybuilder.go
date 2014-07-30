@@ -12,8 +12,7 @@ import (
 // defines units known by ES
 type Unit string
 const (
-	Meters		= Unit("m")
-	Kilometers  = Unit("km")
+	KM  = Unit("km")
 )
 
 type M map[string]interface{}
@@ -314,7 +313,7 @@ func (qb *QueryBuilder) AddLesserThanRange(name string, to float64) *QueryBuilde
 // AddGeoDistance defines a distance around a point to filter results
 //
 // For example, the following snippet
-//  qb := NewQueryBuilder().AddGeoDistance("hq.location", Location{Lat:43.454834, Long:3.757789}, 12, Kilometers)
+//  qb := NewQueryBuilder().AddGeoDistance("hq.location", Location{Lat:43.454834, Long:3.757789}, 12, KM)
 //  r, err := qb.ToJSON()
 // will expand to
 //  {

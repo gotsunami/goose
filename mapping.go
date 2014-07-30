@@ -1,12 +1,56 @@
 package goose
 
 import (
+	"encoding/json"
 	"io/ioutil"
 	"strings"
 )
 
-// sets a mapping for the object. Close index before setting the mapping and reopen it
-// afterwards
+type MappingType string
+
+const (
+	TYPE_DATE	  = MappingType("date")
+	TYPE_GEOPOINT = MappingType("geo_point")
+	TYPE_STRING   = MappingType("string")
+)
+
+type MappingBuilder struct {
+	Properties map[string]M `json:"properties"`
+}
+
+func NewMappingBuilder(object ElasticObject) *MappingBuilder {
+	return &MappingBuilder{Properties: make(map[string]M, 0)}
+}
+
+func (mb *MappingBuilder) AddMapping(name string, t MappingType) *MappingBuilder {
+	mb.Properties[name] = M{"type": t}
+	return mb
+}
+
+func (mb *MappingBuilder) ToJSON() (string, error) {
+	b, err := json.Marshal(mb)
+	if err != nil {
+		return "", err
+	}
+	return string(b), err
+}
+
+func (se *ElasticSearch) SetMapping(object ElasticObject, m MappingBuilder) error {
+	path, err := buildPath(object)
+	if err != nil {
+		return err
+	}
+	mapping := M{path: m}
+
+	jsonmapping, err := json.Marshal(mapping)
+	if err != nil {
+		return err
+	}
+	return se.SetMappingRawJSON(object, string(jsonmapping))
+}
+
+// sets a mapping for the object.
+// Caller is responsible for closing and opening index if necessary
 // TODO: create a MappingBuilder
 func (se *ElasticSearch) SetMappingRawJSON(object ElasticObject, mapping string) error {
 	path, err := buildPath(object)
@@ -16,13 +60,8 @@ func (se *ElasticSearch) SetMappingRawJSON(object ElasticObject, mapping string)
 
 	body := strings.NewReader(mapping)
 
-	if err = se.CloseIndex(); err != nil {
-		return err
-	}
-	if _, err = se.sendRequest(PUT, se.serverUrl+se.basePath+path+actionMapping, body); err != nil {
-		return err
-	}
-	return se.OpenIndex()
+	_, err = se.sendRequest(PUT, se.serverUrl+se.basePath+path+actionMapping, body)
+	return err
 }
 
 // gets the current mapping of the object

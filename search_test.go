@@ -94,8 +94,8 @@ func TestSearchWithAddQueryString(t *testing.T) {
 func TestSearchWithAddGeoBoundingBox(t *testing.T) {
 	u, _ := url.Parse(uri+index)
 	es, _ := NewElasticSearch(u)
-	defer es.DeleteIndex()
 
+	time.Sleep(1 * time.Second)
 	es.SetMappingRawJSON(&DummyObject{}, geomapping)
 	qb := NewQueryBuilder().AddGeoBoundingBox("hq", Location{50, 50}, Location{10, 10})
 
