@@ -24,7 +24,7 @@ func TestMapping(t *testing.T) {
 }
 
 func TestAddMapping(t *testing.T) {
-	mb := NewMappingBuilder(&DummyObject{}).AddMapping("hq", TYPE_GEOPOINT)
+	mb := NewMappingBuilder().AddMapping("hq", TYPE_GEOPOINT)
 
 	r, err := mb.ToJSON()
 	if err != nil {

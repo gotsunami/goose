@@ -6,27 +6,44 @@ import (
 	"strings"
 )
 
+// Defines the mapping types available in ES
 type MappingType string
-
 const (
 	TYPE_DATE	  = MappingType("date")
 	TYPE_GEOPOINT = MappingType("geo_point")
 	TYPE_STRING   = MappingType("string")
 )
 
+// MappingBuilder has helper functions to build JSON query strings
+// compatible with the elasticsearch engine to add mappings.
 type MappingBuilder struct {
 	Properties map[string]M `json:"properties"`
 }
 
-func NewMappingBuilder(object ElasticObject) *MappingBuilder {
+// Returns a pointer to a properly initialized MappingBuilder
+func NewMappingBuilder() *MappingBuilder {
 	return &MappingBuilder{Properties: make(map[string]M, 0)}
 }
 
+// AddMapping defines a new mapping for a named field
+//
+// For example, the following snippet
+//  mb := NewMappingBuilder().AddMapping("hq", TYPE_GEOPOINT)
+//  r, err := mb.ToJSON()
+// will expand to
+//  {
+//      "hq": {
+//          "type": "geo_point"
+//		}
+//  }
 func (mb *MappingBuilder) AddMapping(name string, t MappingType) *MappingBuilder {
 	mb.Properties[name] = M{"type": t}
 	return mb
 }
 
+
+// ToJSON marshalizes the MappingBuilder structure and returns a suitable JSON query
+// string
 func (mb *MappingBuilder) ToJSON() (string, error) {
 	b, err := json.Marshal(mb)
 	if err != nil {
@@ -35,6 +52,19 @@ func (mb *MappingBuilder) ToJSON() (string, error) {
 	return string(b), err
 }
 
+// sets a mapping for the object
+// Caller is responsible for closing and opening index if necessary
+// For example, the following snippet
+//  mb := NewMappingBuilder().AddMapping("hq", TYPE_GEOPOINT)
+//  err := SetMapping(&DummyObject{}, mb)
+// will send the following mapping request:
+//  {
+//      "goose__dummyobject": {
+//          "hq": {
+//              "type": "geo_point"
+//		    }
+//		}
+//  }
 func (se *ElasticSearch) SetMapping(object ElasticObject, m *MappingBuilder) error {
 	mapping, err := m.ToJSON()
 	if err != nil {
@@ -46,7 +76,6 @@ func (se *ElasticSearch) SetMapping(object ElasticObject, m *MappingBuilder) err
 
 // sets a mapping for the object.
 // Caller is responsible for closing and opening index if necessary
-// TODO: create a MappingBuilder
 func (se *ElasticSearch) SetMappingRawJSON(object ElasticObject, mapping string) error {
 	path, err := buildPath(object)
 	if err != nil {
