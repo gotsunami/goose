@@ -2,6 +2,7 @@ package goose
 
 import (
 	"encoding/json"
+	"errors"
 	"reflect"
 	"strings"
 )
@@ -36,6 +37,9 @@ func (se *ElasticSearch) SearchRawJSON(object ElasticObject, jsondata string) (*
 	resp, err := se.sendRequest(GET, se.serverUrl+se.basePath+path+actionSearch+se.stype, body)
 	if err != nil {
 		return nil, err
+	}
+	if resp == nil {
+		return nil, errors.New("No response from ES server")
 	}
 	dec := json.NewDecoder(resp.Body)
 

@@ -16,7 +16,7 @@ func (se *ElasticSearch) IndexExists() (bool, error) {
 	if err == nil {
 		return true, nil
 	}
-	if resp.StatusCode == http.StatusNotFound {
+	if resp != nil && resp.StatusCode == http.StatusNotFound {
 		return false, nil
 	}
 	return false, err
