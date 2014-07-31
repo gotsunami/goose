@@ -41,6 +41,13 @@ var dummySet []DummyObject = []DummyObject{
 }
 
 
+func TestInitSearch(t *testing.T) {
+	u, _ := url.Parse(uri+index)
+	es, _ := NewElasticSearch(u)
+	time.Sleep(1 * time.Second)
+	es.SetMappingRawJSON(&DummyObject{}, geomapping)
+}
+
 func TestSearch(t *testing.T) {
 	u, _ := url.Parse(uri+index)
 	es, _ := NewElasticSearch(u)
@@ -110,8 +117,6 @@ func TestSearchWithAddGeoBoundingBox(t *testing.T) {
 	u, _ := url.Parse(uri+index)
 	es, _ := NewElasticSearch(u)
 
-	time.Sleep(1 * time.Second)
-	es.SetMappingRawJSON(&DummyObject{}, `{"goose__dummyobject":`+geomapping+`}`)
 	qb := NewQueryBuilder().AddGeoBoundingBox("hq", Location{50, 50}, Location{10, 10})
 
 	rset, err := es.Search(&dummySet[0], qb)

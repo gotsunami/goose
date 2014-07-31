@@ -53,4 +53,6 @@ func TestCrudOperations(t *testing.T) {
 		t.Error("Cannot delete dummy object: %v", err)
 	}
 	time.Sleep(1 * time.Second)
+
+	TestCleanIndex(t)
 }

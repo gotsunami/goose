@@ -35,18 +35,13 @@ func (mb *MappingBuilder) ToJSON() (string, error) {
 	return string(b), err
 }
 
-func (se *ElasticSearch) SetMapping(object ElasticObject, m MappingBuilder) error {
-	path, err := buildPath(object)
+func (se *ElasticSearch) SetMapping(object ElasticObject, m *MappingBuilder) error {
+	mapping, err := m.ToJSON()
 	if err != nil {
 		return err
 	}
-	mapping := M{path: m}
 
-	jsonmapping, err := json.Marshal(mapping)
-	if err != nil {
-		return err
-	}
-	return se.SetMappingRawJSON(object, string(jsonmapping))
+	return se.SetMappingRawJSON(object, mapping)
 }
 
 // sets a mapping for the object.
