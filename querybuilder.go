@@ -422,7 +422,7 @@ func (qb *QueryBuilder) ForceToJSON() (string, error) {
 	q = strings.Replace(q, `,"facets":null`, "", 1)
 	q = strings.Replace(q, `,"facets":{}`, "", 1)
 
-	fmt.Println(q)
+//	fmt.Println(q)
 	return q, nil
 }
 

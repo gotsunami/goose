@@ -2,6 +2,7 @@ package goose
 
 import (
 	"net/url"
+	"reflect"
 	"time"
 
 	"testing"
@@ -60,6 +61,20 @@ func TestSearch(t *testing.T) {
 	} else if rset.Hits.Total != 2 {
 		t.Error("Invalid number of hits, expected", 2, " got", rset.Hits.Total)
 	}
+
+	var found bool
+	for _, dummy := range dummySet {
+		found = false
+		for _, r := range rset.Hits.Data {
+			if reflect.DeepEqual(&dummy, r.Object) {
+				found = true
+				break
+			}
+		}
+		if found == false {
+			t.Error("Dummy object was not found in results: ", dummy)
+		}
+	}
 }
 
 func TestSearchWithAddQueryString(t *testing.T) {
@@ -96,7 +111,7 @@ func TestSearchWithAddGeoBoundingBox(t *testing.T) {
 	es, _ := NewElasticSearch(u)
 
 	time.Sleep(1 * time.Second)
-	es.SetMappingRawJSON(&DummyObject{}, geomapping)
+	es.SetMappingRawJSON(&DummyObject{}, `{"goose__dummyobject":`+geomapping+`}`)
 	qb := NewQueryBuilder().AddGeoBoundingBox("hq", Location{50, 50}, Location{10, 10})
 
 	rset, err := es.Search(&dummySet[0], qb)

@@ -24,7 +24,7 @@ const (
 	actionStats		   = "_stats"
 	actionSettings     = "_settings"
 	// model actions
-	actionMapping	   = "_mapping"
+	actionMapping	   = "_mappings"
 	actionSearch       = "_search"
 	actionUpdate       = "_update"
 	typeCount          = "?search_type=count"
@@ -81,6 +81,7 @@ type resultSet struct {
 		Data  []struct {
 			Id  string                 `json:"_id"`
 			Src map[string]interface{} `json:"_source"`
+			Object interface{}
 		} `json:"hits"`
 	}
 	Facets map[string]resultFacet `json:"facets"`

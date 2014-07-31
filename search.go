@@ -2,6 +2,7 @@ package goose
 
 import (
 	"encoding/json"
+	"reflect"
 	"strings"
 )
 
@@ -43,6 +44,14 @@ func (se *ElasticSearch) SearchRawJSON(object ElasticObject, jsondata string) (*
 	if err != nil {
 		return nil, err
 	}
-	// TODO: loop over Hits to cast them as ElasticObject
+
+	v := reflect.Indirect(reflect.ValueOf(object)).Type()
+
+	for cnt, r := range rset.Hits.Data {
+		bj, _ := json.Marshal(r.Src)
+		no := reflect.New(v).Interface()
+		err = json.Unmarshal(bj, no)
+		rset.Hits.Data[cnt].Object = no
+	}
 	return rset, nil
 }

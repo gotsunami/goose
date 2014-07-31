@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	geomapping = `{"goose__dummyobject":{"properties":{"hq":{"type":"geo_point"}}}}`
+	geomapping = `{"properties":{"hq":{"type":"geo_point"}}}`
 )
 
 func TestAddMapping(t *testing.T) {

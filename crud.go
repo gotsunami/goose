@@ -116,9 +116,6 @@ func (se *ElasticSearch) Get(object ElasticObject) (bool, error) {
 	}
 	
 	if res.Found {
-		// v := reflect.Indirect(reflect.ValueOf(object))
-		// returnobject := reflect.New(v.Type())
-
 		bj, _ := json.Marshal(res.Src)
 
 		err = json.Unmarshal(bj, object)
