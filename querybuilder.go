@@ -27,6 +27,8 @@ type Doc struct {
 }
 
 // Used for geo_* filters and to create objects
+// lat: from 90 to -90 (decreasing)
+// long: from -180 to 180 (increasing)
 type Location struct {
 	Lat  float64 `json:"lat"`
 	Long float64 `json:"lon"`
@@ -369,10 +371,12 @@ func (qb *QueryBuilder) AddGeoDistance(name string, point Location, distance uin
 //      "size": 10
 //  }
 func (qb *QueryBuilder) AddGeoBoundingBox(name string, topleft, bottomright Location) *QueryBuilder {
+	// 90 to -90
 	if topleft.Lat < bottomright.Lat {
 		qb.warnings = append(qb.warnings, errors.New(fmt.Sprintf("invalid bounding box, topleft latitude (%f) is lower than bottomright latitude (%f)", topleft.Lat, bottomright.Lat)))
 	}
-	if topleft.Long < bottomright.Long {
+	// -180 to 180
+	if topleft.Long > bottomright.Long {
 		qb.warnings = append(qb.warnings, errors.New(fmt.Sprintf("invalid bounding box, topleft longitude (%f) is lower than bottomright longitude (%f)", topleft.Long, bottomright.Long)))
 	} 
 	qb.Query.Filtered.Filter.GeoBoundingBox = M{name: BoundingBox { topleft, bottomright }}
@@ -424,7 +428,7 @@ func (qb *QueryBuilder) ForceToJSON() (string, error) {
 	q = strings.Replace(q, `,"facets":null`, "", 1)
 	q = strings.Replace(q, `,"facets":{}`, "", 1)
 
-//	fmt.Println(q)
+	fmt.Println(q)
 	return q, nil
 }
 
