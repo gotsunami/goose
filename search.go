@@ -51,6 +51,9 @@ func (se *ElasticSearch) SearchRawJSON(object ElasticObject, jsondata string) (*
 		bj, _ := json.Marshal(r.Src)
 		no := reflect.New(v).Interface()
 		err = json.Unmarshal(bj, no)
+		if err != nil {
+			return rset, err
+		}
 		rset.Hits.Data[cnt].Object = no
 	}
 	return rset, nil
