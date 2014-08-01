@@ -120,7 +120,7 @@ func TestSearchWithAddGeoBoundingBox(t *testing.T) {
 	u, _ := url.Parse(uri+index)
 	es, _ := NewElasticSearch(u)
 
-	qb := NewQueryBuilder().AddGeoBoundingBox("hq", Location{90, -180}, Location{-90, -71.12})
+	qb := NewQueryBuilder().AddGeoBoundingBox("hq", Location{90, -180}, Location{-90, 1})
 
 	rset, err := es.Search(&dummySet[0], qb)
 	if err != nil {

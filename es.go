@@ -42,6 +42,29 @@ const (
 	DELETE            = "DELETE"
 )
 
+// defines units known by ES
+type Unit string
+const (
+	KM  = Unit("km")
+)
+
+// defines sorting order
+type SortingOrder string
+const (
+	ORDER_ASC  = SortingOrder("asc")
+	ORDER_DESC = SortingOrder("desc")
+)
+
+// defines sorting mode
+type SortingMode string
+const (
+	MODE_DEF = SortingMode("")
+	MODE_MIN = SortingMode("min")
+	MODE_MAX = SortingMode("max")
+	MODE_AVG = SortingMode("avg")
+	MODE_SUM = SortingMode("sum")
+)
+
 var (
 	InvalidQueryError  = errors.New("Invalid search engine query.")
 	MissingSourceError = errors.New("Missing source in database after a CSE match!")

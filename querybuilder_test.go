@@ -4,6 +4,18 @@ import (
 	"testing"
 )
 
+func TestAddSort(t *testing.T) {
+	qb := NewQueryBuilder().AddSort("name", ORDER_ASC, MODE_DEF)
+	r, err := qb.ToJSON()
+	if err != nil {
+		t.Error(err.Error())
+	}
+	should := `{"from":0,"size":10,"query":{"filtered":{"query":{"match_all":{}}}},"sort":[{"name":{"order":"asc"}}]}`
+	if r != should {
+		t.Errorf("wrong JSON. Expected\n%v\ngot\n%v", should, r)
+	}
+}
+
 func TestSetTerm(t *testing.T) {
 	qb := NewQueryBuilder().SetTerm("name", "montre")
 	r, err := qb.ToJSON()
