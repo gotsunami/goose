@@ -23,6 +23,7 @@ const (
 	actionClose		   = "_close"
 	actionStats		   = "_stats"
 	actionSettings     = "_settings"
+	actionCount		   = "_count"
 	// model actions
 	actionMapping	   = "_mappings"
 	actionSearch       = "_search"
@@ -135,7 +136,7 @@ type SearchEngine interface {
 type HttpMethod string
 
 // Global search engine instance.
-var Engine *ElasticSearch
+var engine *ElasticSearch
 
 // Search engine implementation for elasticsearch.
 type ElasticSearch struct {
@@ -155,13 +156,13 @@ func NewElasticSearch(uri *url.URL) (*ElasticSearch, error) {
 	}
 
 	// Always set global variable
-	Engine := &ElasticSearch{
+	engine := &ElasticSearch{
 		serverUrl: uri.Scheme + "://" + uri.Host,
 		basePath:  strictSlash(uri.Path),
 		lock:      make(chan bool, 1),
 		stype:     typeSearch,
 	}
-	return Engine, Engine.CreateIndexIfNeeded()
+	return engine, engine.CreateIndexIfNeeded()
 }
 
 func (se *ElasticSearch) handleResponse(r *http.Response) error {
