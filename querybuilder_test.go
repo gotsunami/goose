@@ -5,7 +5,7 @@ import (
 )
 
 func TestAddSort(t *testing.T) {
-	qb := NewQueryBuilder().AddSort("name", ORDER_ASC, MODE_DEF)
+	qb := NewSearchQueryBuilder().AddSort("name", ORDER_ASC, MODE_DEF)
 	r, err := qb.ToJSON()
 	if err != nil {
 		t.Error(err.Error())
@@ -17,7 +17,7 @@ func TestAddSort(t *testing.T) {
 }
 
 func TestSetTerm(t *testing.T) {
-	qb := NewQueryBuilder().SetTerm("name", "montre")
+	qb := NewSearchQueryBuilder().SetTerm("name", "montre")
 	r, err := qb.ToJSON()
 	if err != nil {
 		t.Error(err.Error())
@@ -29,7 +29,7 @@ func TestSetTerm(t *testing.T) {
 }
 
 func TestAddQueryString(t *testing.T) {
-	qb := NewQueryBuilder().AddQueryString("name", "my home")
+	qb := NewSearchQueryBuilder().AddQueryString("name", "my home")
 	r, err := qb.ToJSON()
 	if err != nil {
 		t.Error(err.Error())
@@ -41,7 +41,7 @@ func TestAddQueryString(t *testing.T) {
 }
 
 func TestAddRange(t *testing.T) {
-	qb := NewQueryBuilder().AddRange("category", 5, 5)
+	qb := NewSearchQueryBuilder().AddRange("category", 5, 5)
 	r, err := qb.ToJSON()
 	if err != nil {
 		t.Error(err.Error())
@@ -53,7 +53,7 @@ func TestAddRange(t *testing.T) {
 }
 
 func TestAddGreaterThanRange(t *testing.T) {
-	qb := NewQueryBuilder().AddGreaterThanRange("price", 15)
+	qb := NewSearchQueryBuilder().AddGreaterThanRange("price", 15)
 	r, err := qb.ToJSON()
 	if err != nil {
 		t.Error(err.Error())
@@ -65,7 +65,7 @@ func TestAddGreaterThanRange(t *testing.T) {
 }
 
 func TestAddFloatRange(t *testing.T) {
-	qb := NewQueryBuilder().AddFloatRange("price", 10.5, 16.9)
+	qb := NewSearchQueryBuilder().AddFloatRange("price", 10.5, 16.9)
 	r, err := qb.ToJSON()
 	if err != nil {
 		t.Error(err.Error())
@@ -77,7 +77,7 @@ func TestAddFloatRange(t *testing.T) {
 }
 
 func TestAddLesserThanRange(t *testing.T) {
-	qb := NewQueryBuilder().AddLesserThanRange("price", 12.99)
+	qb := NewSearchQueryBuilder().AddLesserThanRange("price", 12.99)
 	r, err := qb.ToJSON()
 	if err != nil {
 		t.Error(err.Error())
@@ -89,7 +89,7 @@ func TestAddLesserThanRange(t *testing.T) {
 }
 
 func TestAddGeoDistance(t *testing.T) {
-	qb := NewQueryBuilder().AddGeoDistance("location", Location{Lat:0, Long:0}, 12, KM)
+	qb := NewSearchQueryBuilder().AddGeoDistance("location", Location{Lat:0, Long:0}, 12, KM)
 	r, err := qb.ToJSON()
 	if err != nil {
 		t.Error(err.Error())
@@ -101,7 +101,7 @@ func TestAddGeoDistance(t *testing.T) {
 }
 
 func TestAddGeoBoundingBox(t *testing.T) {
-	qb := NewQueryBuilder().AddGeoBoundingBox("location", Location{Lat:90, Long:-180}, Location{Lat:-90, Long:180})
+	qb := NewSearchQueryBuilder().AddGeoBoundingBox("location", Location{Lat:90, Long:-180}, Location{Lat:-90, Long:180})
 	r, err := qb.ToJSON()
 	if err != nil {
 		t.Error(err.Error())

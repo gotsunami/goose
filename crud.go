@@ -136,3 +136,58 @@ func (se *ElasticSearch) Delete(object ElasticObject) error {
 	_, err = se.sendRequest(DELETE, se.serverUrl+se.basePath+path+object.Key(), nil)	
 	return err
 }
+
+// deletes objects with a `query`
+// http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/docs-delete-by-query.html
+type DeletedIndex struct {
+	Shards struct {
+		Total int			`json:"total"`
+		Successful int		`json:"successful"`
+		Failed int			`json:"failed"`
+	} `json:"_shards"`
+}
+type deleteResponse struct {
+	Indices interface{} `json:"_indices"`
+}
+
+func (se *ElasticSearch) DeleteByQuery(object ElasticObject, q *SearchQueryBuilder) (*DeletedIndex, error) {
+	if q == nil {
+		return nil, errors.New("Query is not valid")
+	}
+	if se == nil {
+		return nil, errors.New("Search Engine has not been initialized")
+	}
+	path, err := buildPath(object)
+	if err != nil {
+		return nil, err
+	}
+	// delete query does not accept from and size, so set them to 0 for `omitempty` to be triggered
+	q.Size = 0
+	data, err := q.ToJSON()
+	if err != nil {
+		return nil, err
+	}	
+	body := strings.NewReader(data)
+	resp, err := se.sendRequest(DELETE, se.serverUrl+se.basePath+path+actionQuery, body)
+	if err != nil {
+		return nil, err
+	}
+	if resp == nil {
+		return nil, errors.New("No response from ES server")
+	}
+	dec := json.NewDecoder(resp.Body)
+
+	dresp := new(deleteResponse)
+	err = dec.Decode(dresp)
+	v := reflect.ValueOf(dresp.Indices)
+	keys := v.MapKeys()
+	
+	for _, key := range keys {
+		js, _ := json.Marshal(v.MapIndex(key).Interface())
+		index := new(DeletedIndex)
+		if err = json.Unmarshal(js, index); err == nil {
+			return index, nil
+		}
+	}
+	return nil, nil
+}

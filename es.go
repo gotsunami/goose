@@ -28,6 +28,7 @@ const (
 	actionMapping	   = "_mappings"
 	actionSearch       = "_search"
 	actionUpdate       = "_update"
+	actionQuery        = "_query"
 	typeCount          = "?search_type=count"
 	typeScan           = "?search_type=scan&scroll=10m&size=10"
 	typeSearch         = "" // Basic search

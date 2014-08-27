@@ -12,6 +12,7 @@ const (
 	TYPE_DATE	  = MappingType("date")
 	TYPE_GEOPOINT = MappingType("geo_point")
 	TYPE_STRING   = MappingType("string")
+	TYPE_LONG     = MappingType("long")
 )
 
 // MappingBuilder has helper functions to build JSON query strings

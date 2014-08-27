@@ -31,22 +31,22 @@ func (se *ElasticSearch) Count(object ElasticObject) (int, error) {
 }
 
 // Performs a search count
-func (se *ElasticSearch) SearchCount(object ElasticObject, qb *QueryBuilder) (*resultSet, error) {
+func (se *ElasticSearch) SearchCount(object ElasticObject, qb *SearchQueryBuilder) (*resultSet, error) {
 	return se.search(object, qb, typeCount)
 }
 
 // Performs a search
-func (se *ElasticSearch) Search(object ElasticObject, qb *QueryBuilder) (*resultSet, error) {
+func (se *ElasticSearch) Search(object ElasticObject, qb *SearchQueryBuilder) (*resultSet, error) {
 	return se.search(object, qb, typeSearch)
 }
 
-// performs a search of ElasticObjects with the QueryBuilder matching query and the search
+// performs a search of ElasticObjects with the SearchQueryBuilder matching query and the search
 // type given (scan, search, count).
 // qb can be nil, in that case the search looks for all indexed objects
 // This is the recommended method to make a search.
-// The QueryBuilder is easy to use and handles a lot of exceptions that could provoke
+// The SearchQueryBuilder is easy to use and handles a lot of exceptions that could provoke
 // an ES failure
-func (se *ElasticSearch) search(object ElasticObject, qb *QueryBuilder, stype string) (*resultSet, error) { 
+func (se *ElasticSearch) search(object ElasticObject, qb *SearchQueryBuilder, stype string) (*resultSet, error) { 
 	se.stype = stype
 	var err error
 	jsondata := ""
@@ -61,7 +61,7 @@ func (se *ElasticSearch) search(object ElasticObject, qb *QueryBuilder, stype st
 
 // performs a search with a (supposedly) valid json string.
 // It is strongly adviced not to used this method except if you know exactly
-// what you are doing and/or if the QueryBuilder is missing the filter you want
+// what you are doing and/or if the SearchQueryBuilder is missing the filter you want
 func (se *ElasticSearch) SearchRawJSON(object ElasticObject, jsondata string) (*resultSet, error) {
 	path, err := buildPath(object)
 	if err != nil {
