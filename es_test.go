@@ -10,6 +10,7 @@ package goose
 const (
 	uri = "http://localhost:9200/"
 	index = "gooseindex"
+	index2 = "gooseindex2"
 	invalidindex = "UPPERCASE"
 	dlat = 43.454834
 	dlong = 3.757789

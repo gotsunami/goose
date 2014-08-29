@@ -91,7 +91,7 @@ func TestSearchWithAddQueryString(t *testing.T) {
 	u, _ := url.Parse(uri+index)
 	es, _ := NewElasticSearch(u)
 
-	qb := NewSearchQueryBuilder().AddQueryString("description", "Dummy")
+	qb := NewQueryBuilder().AddQueryString("description", "Dummy")
 
 	rset, err := es.Search(&dummySet[0], qb)
 	if err != nil {
@@ -103,7 +103,7 @@ func TestSearchWithAddQueryString(t *testing.T) {
 		t.Error("Invalid number of hits, expected", 1, " got", rset.Hits.Total)
 	}
 
-	qb = NewSearchQueryBuilder().AddQueryString("description", "object")
+	qb = NewQueryBuilder().AddQueryString("description", "object")
 
 	rset, err = es.Search(&dummySet[0], qb)
 	if err != nil {
@@ -120,7 +120,7 @@ func TestSearchWithAddGeoBoundingBox(t *testing.T) {
 	u, _ := url.Parse(uri+index)
 	es, _ := NewElasticSearch(u)
 
-	qb := NewSearchQueryBuilder().AddGeoBoundingBox("hq", Location{90, -180}, Location{-90, 1})
+	qb := NewQueryBuilder().AddGeoBoundingBox("hq", Location{90, -180}, Location{-90, 1})
 
 	rset, err := es.Search(&dummySet[0], qb)
 	if err != nil {

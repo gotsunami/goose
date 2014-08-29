@@ -150,7 +150,7 @@ type deleteResponse struct {
 	Indices interface{} `json:"_indices"`
 }
 
-func (se *ElasticSearch) DeleteByQuery(object ElasticObject, q *SearchQueryBuilder) (*DeletedIndex, error) {
+func (se *ElasticSearch) DeleteByQuery(object ElasticObject, q *QueryBuilder) (*DeletedIndex, error) {
 	if q == nil {
 		return nil, errors.New("Query is not valid")
 	}
