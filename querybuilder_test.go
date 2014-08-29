@@ -10,7 +10,7 @@ func TestAddSort(t *testing.T) {
 	if err != nil {
 		t.Error(err.Error())
 	}
-	should := `{"from":0,"size":10,"query":{"filtered":{"query":{"match_all":{}}}},"sort":[{"name":{"order":"asc"}}]}`
+	should := `{"size":10,"query":{"filtered":{"query":{"match_all":{}}}},"sort":[{"name":{"order":"asc"}}]}`
 	if r != should {
 		t.Errorf("wrong JSON. Expected\n%v\ngot\n%v", should, r)
 	}
@@ -22,7 +22,7 @@ func TestSetTerm(t *testing.T) {
 	if err != nil {
 		t.Error(err.Error())
 	}
-	should := `{"from":0,"size":10,"query":{"filtered":{"query":{"bool":{"must":[{"term":{"name":"montre"}}]}}}}}`
+	should := `{"size":10,"query":{"filtered":{"query":{"bool":{"must":[{"term":{"name":"montre"}}]}}}}}`
 	if r != should {
 		t.Errorf("wrong JSON. Expected\n%v\ngot\n%v", should, r)
 	}
@@ -34,7 +34,7 @@ func TestAddQueryString(t *testing.T) {
 	if err != nil {
 		t.Error(err.Error())
 	}
-	should := `{"from":0,"size":10,"query":{"filtered":{"query":{"bool":{"must":[{"query_string":{"default_field":"name","query":"my home"}}]}}}}}`
+	should := `{"size":10,"query":{"filtered":{"query":{"bool":{"must":[{"query_string":{"default_field":"name","query":"my home"}}]}}}}}`
 	if r != should {
 		t.Errorf("wrong JSON. Expected\n%v\ngot\n%v", should, r)
 	}
@@ -46,7 +46,7 @@ func TestAddRange(t *testing.T) {
 	if err != nil {
 		t.Error(err.Error())
 	}
-	should := `{"from":0,"size":10,"query":{"filtered":{"query":{"bool":{"must":[{"range":{"category":{"from":5,"to":5}}}]}}}}}`
+	should := `{"size":10,"query":{"filtered":{"query":{"bool":{"must":[{"range":{"category":{"from":5,"to":5}}}]}}}}}`
 	if r != should {
 		t.Errorf("wrong JSON. Expected\n%v\ngot\n%v", should, r)
 	}
@@ -58,7 +58,7 @@ func TestAddGreaterThanRange(t *testing.T) {
 	if err != nil {
 		t.Error(err.Error())
 	}
-	should := `{"from":0,"size":10,"query":{"filtered":{"query":{"bool":{"must":[{"range":{"price":{"gte":15}}}]}}}}}`
+	should := `{"size":10,"query":{"filtered":{"query":{"bool":{"must":[{"range":{"price":{"gte":15}}}]}}}}}`
 	if r != should {
 		t.Errorf("wrong JSON. Expected\n%v\ngot\n%v", should, r)
 	}
@@ -70,7 +70,7 @@ func TestAddFloatRange(t *testing.T) {
 	if err != nil {
 		t.Error(err.Error())
 	}
-	should := `{"from":0,"size":10,"query":{"filtered":{"query":{"bool":{"must":[{"range":{"price":{"gte":10.5}}},{"range":{"price":{"lte":16.9}}}]}}}}}`
+	should := `{"size":10,"query":{"filtered":{"query":{"bool":{"must":[{"range":{"price":{"gte":10.5}}},{"range":{"price":{"lte":16.9}}}]}}}}}`
 	if r != should {
 		t.Errorf("wrong JSON. Expected\n%v\ngot\n%v", should, r)
 	}
@@ -82,7 +82,7 @@ func TestAddLesserThanRange(t *testing.T) {
 	if err != nil {
 		t.Error(err.Error())
 	}
-	should := `{"from":0,"size":10,"query":{"filtered":{"query":{"bool":{"must":[{"range":{"price":{"lte":12.99}}}]}}}}}`
+	should := `{"size":10,"query":{"filtered":{"query":{"bool":{"must":[{"range":{"price":{"lte":12.99}}}]}}}}}`
 	if r != should {
 		t.Errorf("wrong JSON. Expected\n%v\ngot\n%v", should, r)
 	}
@@ -94,7 +94,7 @@ func TestAddGeoDistance(t *testing.T) {
 	if err != nil {
 		t.Error(err.Error())
 	}
-	should := `{"from":0,"size":10,"query":{"filtered":{"query":{"match_all":{}},"filter":{"geo_distance":{"distance":"12km","location":{"lat":0,"lon":0}}}}}}`
+	should := `{"size":10,"query":{"filtered":{"query":{"match_all":{}},"filter":{"geo_distance":{"distance":"12km","location":{"lat":0,"lon":0}}}}}}`
 	if r != should {
 		t.Errorf("wrong JSON. Expected\n%v\ngot\n%v", should, r)
 	}
@@ -106,7 +106,7 @@ func TestAddGeoBoundingBox(t *testing.T) {
 	if err != nil {
 		t.Error(err.Error())
 	}
-	should := `{"from":0,"size":10,"query":{"filtered":{"query":{"match_all":{}},"filter":{"geo_bounding_box":{"location":{"top_left":{"lat":90,"lon":-180},"bottom_right":{"lat":-90,"lon":180}}}}}}}`
+	should := `{"size":10,"query":{"filtered":{"query":{"match_all":{}},"filter":{"geo_bounding_box":{"location":{"top_left":{"lat":90,"lon":-180},"bottom_right":{"lat":-90,"lon":180}}}}}}}`
 	if r != should {
 		t.Errorf("wrong JSON. Expected\n%v\ngot\n%v", should, r)
 	}
