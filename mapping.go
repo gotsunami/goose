@@ -85,8 +85,7 @@ func (se *ElasticSearch) SetMappingRawJSON(object ElasticObject, mapping string)
 
 	body := strings.NewReader(mapping)
 
-	_, err = se.sendRequest(PUT, se.serverUrl+se.basePath+path+actionMapping, body)
-	return err
+	return se.sendRequest(PUT, se.serverUrl+se.basePath+path+actionMapping, body)
 }
 
 // gets the current mapping of the object
@@ -97,7 +96,8 @@ func (se *ElasticSearch) GetMapping(object ElasticObject) (string, error) {
 		return "", err
 	}
 
-	resp, err := se.sendRequest(GET, se.serverUrl+se.basePath+path+actionMapping, nil)	
+	resp, err := se.sendRequestAndGetResponse(GET, se.serverUrl+se.basePath+path+actionMapping, nil)
+	defer resp.Body.Close()
 	if err != nil {
 		return "", err
 	}

@@ -174,8 +174,17 @@ func (se *ElasticSearch) handleResponse(r *http.Response) error {
 	return nil
 }
 
+type callback func(*http.Response) error
+
 // Sends HTTP request to search engine
-func (se *ElasticSearch) sendRequest(m HttpMethod, path string, body io.Reader) (*http.Response, error) {
+func (se *ElasticSearch) sendRequest(m HttpMethod, path string, body io.Reader) error {
+	resp, err := se.sendRequestAndGetResponse(m, path, body)
+	resp.Body.Close()	
+	return err
+}
+
+// Sends HTTP request to search engine
+func (se *ElasticSearch) sendRequestAndGetResponse(m HttpMethod, path string, body io.Reader) (*http.Response, error) {
 	se.lock <- true
 	defer func() { <-se.lock }()
 	req, err := http.NewRequest(string(m), path, body)
@@ -183,7 +192,6 @@ func (se *ElasticSearch) sendRequest(m HttpMethod, path string, body io.Reader) 
 		return nil, err
 	}
 	resp, err := http.DefaultClient.Do(req)
-	defer resp.Body.Close()
 	if err != nil {
 		return nil, err
 	}

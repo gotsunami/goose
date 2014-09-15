@@ -18,7 +18,11 @@ func (se *ElasticSearch) Count(object ElasticObject) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	resp, err := se.sendRequest(GET, se.serverUrl+se.basePath+path+actionCount, nil)
+	resp, err := se.sendRequestAndGetResponse(GET, se.serverUrl+se.basePath+path+actionCount, nil)
+	defer resp.Body.Close()
+	if err != nil {
+		return 0, err
+	}
 
 	dec := json.NewDecoder(resp.Body)
 
@@ -69,7 +73,8 @@ func (se *ElasticSearch) SearchRawJSON(object ElasticObject, jsondata string) (*
 	}
 
 	body := strings.NewReader(jsondata)
-	resp, err := se.sendRequest(GET, se.serverUrl+se.basePath+path+actionSearch+se.stype, body)
+	resp, err := se.sendRequestAndGetResponse(GET, se.serverUrl+se.basePath+path+actionSearch+se.stype, body)
+	defer resp.Body.Close()
 	if err != nil {
 		return nil, err
 	}

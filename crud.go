@@ -66,8 +66,7 @@ func (se *ElasticSearch) Insert(object ElasticObject) error {
 	}
 	body := strings.NewReader(string(jsondata))
 
-	_, err = se.sendRequest(PUT, se.serverUrl+se.basePath+path+object.Key(), body)	
-	return err
+	return se.sendRequest(PUT, se.serverUrl+se.basePath+path+object.Key(), body)
 }
 
 // updates an element in the index. TODO: check _update
@@ -85,7 +84,7 @@ func (se *ElasticSearch) Update(object ElasticObject) error {
 	}
 	body := strings.NewReader(string(jsondata))
 
-	_, err = se.sendRequest(POST, se.serverUrl+se.basePath+path+strictSlash(object.Key())+actionUpdate, body)	
+	return se.sendRequest(POST, se.serverUrl+se.basePath+path+strictSlash(object.Key())+actionUpdate, body)
 	return err
 }
 
@@ -104,7 +103,8 @@ func (se *ElasticSearch) Get(object ElasticObject) (bool, error) {
 	}
 	body := strings.NewReader(string(jsondata))
 
-	resp, err := se.sendRequest(GET, se.serverUrl+se.basePath+path+object.Key(), body)	
+	resp, err := se.sendRequestAndGetResponse(GET, se.serverUrl+se.basePath+path+object.Key(), body)	
+	defer resp.Body.Close()
 	if err != nil {
 		return false, err
 	}
@@ -133,8 +133,7 @@ func (se *ElasticSearch) Delete(object ElasticObject) error {
 	if err != nil {
 		return err
 	}
-	_, err = se.sendRequest(DELETE, se.serverUrl+se.basePath+path+object.Key(), nil)	
-	return err
+	return se.sendRequest(DELETE, se.serverUrl+se.basePath+path+object.Key(), nil)	
 }
 
 // deletes objects with a `query`
@@ -168,7 +167,8 @@ func (se *ElasticSearch) DeleteByQuery(object ElasticObject, q *QueryBuilder) (*
 		return nil, err
 	}	
 	body := strings.NewReader(data)
-	resp, err := se.sendRequest(DELETE, se.serverUrl+se.basePath+path+actionQuery, body)
+	resp, err := se.sendRequestAndGetResponse(DELETE, se.serverUrl+se.basePath+path+actionQuery, body)
+	defer resp.Body.Close()
 	if err != nil {
 		return nil, err
 	}
