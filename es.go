@@ -183,6 +183,7 @@ func (se *ElasticSearch) sendRequest(m HttpMethod, path string, body io.Reader) 
 		return nil, err
 	}
 	resp, err := http.DefaultClient.Do(req)
+	defer resp.Body.Close()
 	if err != nil {
 		return nil, err
 	}
