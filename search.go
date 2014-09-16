@@ -8,7 +8,7 @@ import (
 )
 
 type Count struct {
-	Count		int `json:count`
+	Count int `json:count`
 }
 
 // Performs a "real" count
@@ -46,7 +46,7 @@ func (se *ElasticSearch) Search(object ElasticObject, qb *QueryBuilder) (*result
 // This is the recommended method to make a search.
 // The QueryBuilder is easy to use and handles a lot of exceptions that could provoke
 // an ES failure
-func (se *ElasticSearch) search(object ElasticObject, qb *QueryBuilder, stype string) (*resultSet, error) { 
+func (se *ElasticSearch) search(object ElasticObject, qb *QueryBuilder, stype string) (*resultSet, error) {
 	se.stype = stype
 	var err error
 	jsondata := ""
@@ -55,7 +55,7 @@ func (se *ElasticSearch) search(object ElasticObject, qb *QueryBuilder, stype st
 			return nil, err
 		}
 	}
-	
+
 	return se.SearchRawJSON(object, jsondata)
 }
 

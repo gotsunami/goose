@@ -8,8 +8,9 @@ import (
 
 // Defines the mapping types available in ES
 type MappingType string
+
 const (
-	TYPE_DATE	  = MappingType("date")
+	TYPE_DATE     = MappingType("date")
 	TYPE_GEOPOINT = MappingType("geo_point")
 	TYPE_STRING   = MappingType("string")
 	TYPE_LONG     = MappingType("long")
@@ -41,7 +42,6 @@ func (mb *MappingBuilder) AddMapping(name string, t MappingType) *MappingBuilder
 	mb.Properties[name] = M{"type": t}
 	return mb
 }
-
 
 // ToJSON marshalizes the MappingBuilder structure and returns a suitable JSON query
 // string
@@ -97,7 +97,7 @@ func (se *ElasticSearch) GetMapping(object ElasticObject) (string, error) {
 		return "", err
 	}
 
-	resp, err := se.sendRequest(GET, se.serverUrl+se.basePath+path+actionMapping, nil)	
+	resp, err := se.sendRequest(GET, se.serverUrl+se.basePath+path+actionMapping, nil)
 	if err != nil {
 		return "", err
 	}

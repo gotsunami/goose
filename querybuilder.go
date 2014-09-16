@@ -49,8 +49,8 @@ type QueryBuilder struct {
 			} `json:"query"`
 			Filter struct {
 				GeoBoundingBox M `json:"geo_bounding_box"`
-				GeoDistance M `json:"geo_distance"`
-				GeoPolygon M `json:"geo_polygon"`
+				GeoDistance    M `json:"geo_distance"`
+				GeoPolygon     M `json:"geo_polygon"`
 			} `json:"filter"`
 		} `json:"filtered"`
 	} `json:"query"`
@@ -381,15 +381,15 @@ func (qb *QueryBuilder) AddGeoBoundingBox(name string, topleft, bottomright Loca
 	// -180 to 180
 	if topleft.Long > bottomright.Long {
 		qb.warnings = append(qb.warnings, errors.New(fmt.Sprintf("invalid bounding box, topleft longitude (%f) is lower than bottomright longitude (%f)", topleft.Long, bottomright.Long)))
-	} 
-	qb.Query.Filtered.Filter.GeoBoundingBox = M{name: BoundingBox { topleft, bottomright }}
-	
+	}
+	qb.Query.Filtered.Filter.GeoBoundingBox = M{name: BoundingBox{topleft, bottomright}}
+
 	return qb
 }
 
 // ToJSON marshalizes the QueryBuilder structure and returns a suitable JSON query
 // string if and only if no warnings were generated during build.
-// Usually, queries won't fail if warnings are produced but the reply will probably 
+// Usually, queries won't fail if warnings are produced but the reply will probably
 // not be the expected result (see AddGeoBoundingBox)
 func (qb *QueryBuilder) ToJSON() (string, error) {
 	if len(qb.warnings) > 0 {
@@ -398,7 +398,7 @@ func (qb *QueryBuilder) ToJSON() (string, error) {
 	return qb.ForceToJSON()
 }
 
-// ForceToJSON marshalizes the QueryBuilder structure and returns a suitable JSON 
+// ForceToJSON marshalizes the QueryBuilder structure and returns a suitable JSON
 // query string even if warnings were produced during build.
 func (qb *QueryBuilder) ForceToJSON() (string, error) {
 	query, err := json.Marshal(qb)
@@ -431,7 +431,7 @@ func (qb *QueryBuilder) ForceToJSON() (string, error) {
 	q = strings.Replace(q, `,"facets":null`, "", 1)
 	q = strings.Replace(q, `,"facets":{}`, "", 1)
 
-//	fmt.Println(q)
+	//	fmt.Println(q)
 	return q, nil
 }
 

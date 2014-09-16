@@ -10,14 +10,14 @@ import (
 
 // consts and types are all defined in es_test.go
 func TestCrudOperations(t *testing.T) {
-	u, _ := url.Parse(uri+index)
+	u, _ := url.Parse(uri + index)
 	es, _ := NewElasticSearch(u)
 	defer es.DeleteIndex()
 
 	dummy := DummyObject{
-		Id:1,
+		Id:          1,
 		Description: "Dummy object 1",
-		Len:30.18,
+		Len:         30.18,
 	}
 
 	if err := es.Insert(&dummy); err != nil {
@@ -25,7 +25,7 @@ func TestCrudOperations(t *testing.T) {
 	}
 
 	bogus := DummyObject{
-		Id:1,
+		Id: 1,
 	}
 
 	found, err := es.Get(&bogus)
@@ -34,7 +34,7 @@ func TestCrudOperations(t *testing.T) {
 	}
 	if !reflect.DeepEqual(dummy, bogus) {
 		t.Error("Found dummy object has incorrect values, expected", dummy, ", got", bogus)
-	} 
+	}
 
 	dummy.Len += 12.24
 	if err := es.Update(&dummy); err != nil {
@@ -47,7 +47,7 @@ func TestCrudOperations(t *testing.T) {
 	}
 	if !reflect.DeepEqual(dummy, bogus) {
 		t.Error("Found dummy object has incorrect values, expected", dummy, ", got", bogus)
-	} 
+	}
 
 	if err := es.Delete(&dummy); err != nil {
 		t.Error("Cannot delete dummy object: %v", err)
@@ -59,8 +59,7 @@ func TestCrudOperations(t *testing.T) {
 	}
 	time.Sleep(1 * time.Second)
 
-
-	u, _ = url.Parse(uri+index2)
+	u, _ = url.Parse(uri + index2)
 	es2, _ := NewElasticSearch(u)
 
 	if err := es.Insert(&dummy); err != nil {
@@ -94,7 +93,6 @@ func TestCrudOperations(t *testing.T) {
 		t.Error("Cannot find object (should not have been deleted by query):", bogus)
 	}
 	time.Sleep(1 * time.Second)
-
 
 	TestCleanIndex(t)
 }

@@ -34,18 +34,18 @@ func (se *ElasticSearch) CreateIndexIfNeeded() error {
 
 // opens an index
 func (se *ElasticSearch) OpenIndex() error {
-	_, err := se.sendRequest(POST, se.serverUrl+se.basePath+actionOpen, nil)	
+	_, err := se.sendRequest(POST, se.serverUrl+se.basePath+actionOpen, nil)
 	return err
 }
 
 // closes an index (necessary before calling actions like _settings or _mappings)
 func (se *ElasticSearch) CloseIndex() error {
-	_, err := se.sendRequest(POST, se.serverUrl+se.basePath+actionClose, nil)	
+	_, err := se.sendRequest(POST, se.serverUrl+se.basePath+actionClose, nil)
 	return err
 }
 
 // deletes an index
 func (se *ElasticSearch) DeleteIndex() error {
-	_, err := se.sendRequest(DELETE, se.serverUrl+se.basePath, nil)	
+	_, err := se.sendRequest(DELETE, se.serverUrl+se.basePath, nil)
 	return err
 }
