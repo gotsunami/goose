@@ -1,26 +1,25 @@
 package goose
 
- import (
-	 "fmt"
+import (
+	"fmt"
 
-// 	"testing"
- )
-
+	// 	"testing"
+)
 
 const (
-	uri = "http://localhost:9200/"
-	index = "gooseindex"
-	index2 = "gooseindex2"
+	uri          = "http://localhost:9200/"
+	index        = "gooseindex"
+	index2       = "gooseindex2"
 	invalidindex = "UPPERCASE"
-	dlat = 43.454834
-	dlong = 3.757789
+	dlat         = 43.454834
+	dlong        = 3.757789
 )
 
 type DummyObject struct {
-	Id			int		 `json:"id"`
+	Id          int      `json:"id"`
 	Description string   `json:"description"`
-	Len			float64  `json:"len"`
-	HQ			Location `json:"hq"`			
+	Len         float64  `json:"len"`
+	HQ          Location `json:"hq"`
 }
 
 func (d *DummyObject) Key() string {

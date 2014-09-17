@@ -1,20 +1,20 @@
 package goose
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"reflect"
 	"strings"
-	"encoding/json"
 )
 
-type ElasticObject interface{
+type ElasticObject interface {
 	Key() string
 }
 
 // builds the path to an object. If object.BuildPath() string exists, it is called
 // else, goose tries to create an index from the object `reflected` data
-// Define precisely 
+// Define precisely
 //		object.BuildPath(nil) string
 // or buildPath will crash (index out of range or invalid type assertion)
 //
@@ -27,7 +27,7 @@ func buildPath(object ElasticObject) (string, error) {
 	if t == nil {
 		return "", errors.New("Object cannot be nil")
 	}
-	
+
 	var path string
 
 	selfBuildPath := v.MethodByName("BuildPath")
@@ -37,7 +37,7 @@ func buildPath(object ElasticObject) (string, error) {
 		// 	return "", errors.New(fmt.Sprintf("%s.BuildPath() does not return a value.", t.String()))		}
 		path = valuePath[0].Interface().(string)
 		// if !ok {
-		// 	return "", errors.New(fmt.Sprintf("%s.BuildPath() does not return a string (invalid type assertion).", t.String()))		
+		// 	return "", errors.New(fmt.Sprintf("%s.BuildPath() does not return a string (invalid type assertion).", t.String()))
 		// }
 		if len(path) < 2 || !strings.HasSuffix(path, "/") {
 			return path, errors.New(fmt.Sprintf("%s.BuildPath() returned invalid path.", t.String()))
@@ -78,14 +78,13 @@ func (se *ElasticSearch) Update(object ElasticObject) error {
 	if err != nil {
 		return err
 	}
-	jsondata, err := json.Marshal(Doc{Doc:object})
+	jsondata, err := json.Marshal(Doc{Doc: object})
 	if err != nil {
 		return err
 	}
 	body := strings.NewReader(string(jsondata))
 
 	return se.sendRequest(POST, se.serverUrl+se.basePath+path+strictSlash(object.Key())+actionUpdate, body)
-	return err
 }
 
 // adds an element to the index. Caller must ensure that id is unique for each inserted object.
@@ -114,7 +113,7 @@ func (se *ElasticSearch) Get(object ElasticObject) (bool, error) {
 	if err = dec.Decode(res); err != nil {
 		return false, err
 	}
-	
+
 	if res.Found {
 		bj, _ := json.Marshal(res.Src)
 
@@ -140,9 +139,9 @@ func (se *ElasticSearch) Delete(object ElasticObject) error {
 // http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/docs-delete-by-query.html
 type DeletedIndex struct {
 	Shards struct {
-		Total int			`json:"total"`
-		Successful int		`json:"successful"`
-		Failed int			`json:"failed"`
+		Total      int `json:"total"`
+		Successful int `json:"successful"`
+		Failed     int `json:"failed"`
 	} `json:"_shards"`
 }
 type deleteResponse struct {
@@ -165,7 +164,7 @@ func (se *ElasticSearch) DeleteByQuery(object ElasticObject, q *QueryBuilder) (*
 	data, err := q.ToJSON()
 	if err != nil {
 		return nil, err
-	}	
+	}
 	body := strings.NewReader(data)
 	resp, err := se.sendRequestAndGetResponse(DELETE, se.serverUrl+se.basePath+path+actionQuery, body)
 	defer resp.Body.Close()
@@ -181,7 +180,7 @@ func (se *ElasticSearch) DeleteByQuery(object ElasticObject, q *QueryBuilder) (*
 	err = dec.Decode(dresp)
 	v := reflect.ValueOf(dresp.Indices)
 	keys := v.MapKeys()
-	
+
 	for _, key := range keys {
 		js, _ := json.Marshal(v.MapIndex(key).Interface())
 		index := new(DeletedIndex)

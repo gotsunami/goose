@@ -89,7 +89,7 @@ func TestAddLesserThanRange(t *testing.T) {
 }
 
 func TestAddGeoDistance(t *testing.T) {
-	qb := NewQueryBuilder().AddGeoDistance("location", Location{Lat:0, Long:0}, 12, KM)
+	qb := NewQueryBuilder().AddGeoDistance("location", Location{Lat: 0, Long: 0}, 12, KM)
 	r, err := qb.ToJSON()
 	if err != nil {
 		t.Error(err.Error())
@@ -101,7 +101,7 @@ func TestAddGeoDistance(t *testing.T) {
 }
 
 func TestAddGeoBoundingBox(t *testing.T) {
-	qb := NewQueryBuilder().AddGeoBoundingBox("location", Location{Lat:90, Long:-180}, Location{Lat:-90, Long:180})
+	qb := NewQueryBuilder().AddGeoBoundingBox("location", Location{Lat: 90, Long: -180}, Location{Lat: -90, Long: 180})
 	r, err := qb.ToJSON()
 	if err != nil {
 		t.Error(err.Error())

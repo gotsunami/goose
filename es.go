@@ -19,19 +19,19 @@ import (
 
 const (
 	// index actions
-	actionOpen		   = "_open"
-	actionClose		   = "_close"
-	actionStats		   = "_stats"
-	actionSettings     = "_settings"
-	actionCount		   = "_count"
+	actionOpen     = "_open"
+	actionClose    = "_close"
+	actionStats    = "_stats"
+	actionSettings = "_settings"
+	actionCount    = "_count"
 	// model actions
-	actionMapping	   = "_mappings"
-	actionSearch       = "_search"
-	actionUpdate       = "_update"
-	actionQuery        = "_query"
-	typeCount          = "?search_type=count"
-	typeScan           = "?search_type=scan&scroll=10m&size=10"
-	typeSearch         = "" // Basic search
+	actionMapping = "_mappings"
+	actionSearch  = "_search"
+	actionUpdate  = "_update"
+	actionQuery   = "_query"
+	typeCount     = "?search_type=count"
+	typeScan      = "?search_type=scan&scroll=10m&size=10"
+	typeSearch    = "" // Basic search
 
 	envelopeShape  = "envelope"
 	withinRelation = "within"
@@ -46,12 +46,14 @@ const (
 
 // defines units known by ES
 type Unit string
+
 const (
-	KM  = Unit("km")
+	KM = Unit("km")
 )
 
 // defines sorting order
 type SortingOrder string
+
 const (
 	ORDER_ASC  = SortingOrder("asc")
 	ORDER_DESC = SortingOrder("desc")
@@ -59,6 +61,7 @@ const (
 
 // defines sorting mode
 type SortingMode string
+
 const (
 	MODE_DEF = SortingMode("")
 	MODE_MIN = SortingMode("min")
@@ -85,12 +88,12 @@ func strictSlash(in string) string {
 }
 
 type result struct {
-	Index   string `json:"_index"`
-	Type    string `json:"_type"`
-	Id	    string `json:"_id"`
-	Version int	   `json:"_version"`
-	Found   bool   `json:"found"`
-	Src		interface{} `json:"_source"`
+	Index   string      `json:"_index"`
+	Type    string      `json:"_type"`
+	Id      string      `json:"_id"`
+	Version int         `json:"_version"`
+	Found   bool        `json:"found"`
+	Src     interface{} `json:"_source"`
 }
 
 type resultFacet struct {
@@ -104,8 +107,8 @@ type resultSet struct {
 	Hits struct {
 		Total int
 		Data  []struct {
-			Id  string                 `json:"_id"`
-			Src map[string]interface{} `json:"_source"`
+			Id     string                 `json:"_id"`
+			Src    map[string]interface{} `json:"_source"`
 			Object interface{}
 		} `json:"hits"`
 	}
@@ -142,7 +145,7 @@ var engine *ElasticSearch
 // Search engine implementation for elasticsearch.
 type ElasticSearch struct {
 	serverUrl string
-	basePath  string   // defaults to /bf/
+	basePath  string // defaults to /bf/
 	lock      chan bool
 	stype     string
 }

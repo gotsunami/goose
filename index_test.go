@@ -10,7 +10,7 @@ import (
 // consts and types are all defined in es_test.go
 
 func TestCreateAndDeleteIndex(t *testing.T) {
-	u, _ := url.Parse(uri+index)
+	u, _ := url.Parse(uri + index)
 	es, err := NewElasticSearch(u)
 	if err != nil {
 		t.Fatal("Cannot dial ES: %s", err.Error())
@@ -47,7 +47,7 @@ func TestCreateAndDeleteIndex(t *testing.T) {
 }
 
 func TestOpenAndCloseIndex(t *testing.T) {
-	u, _ := url.Parse(uri+index)
+	u, _ := url.Parse(uri + index)
 	es, _ := NewElasticSearch(u)
 	time.Sleep(50 * time.Millisecond)
 
@@ -57,7 +57,7 @@ func TestOpenAndCloseIndex(t *testing.T) {
 
 	if err := es.CloseIndex(); err != nil {
 		t.Error("Cannot close index: %v", err.Error())
-	}	
+	}
 
 	es.DeleteIndex()
 

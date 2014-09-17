@@ -3,7 +3,7 @@ package goose
 import (
 	"net/url"
 	"time"
-	
+
 	"testing"
 )
 
@@ -12,7 +12,7 @@ const (
 )
 
 func TestMapping(t *testing.T) {
-	u, _ := url.Parse(uri+index)
+	u, _ := url.Parse(uri + index)
 	es, _ := NewElasticSearch(u)
 
 	time.Sleep(1 * time.Second)
@@ -35,7 +35,7 @@ func TestAddMapping(t *testing.T) {
 		t.Errorf("wrong JSON. Expected\n%v\ngot\n%v", should, r)
 	}
 
-	u, _ := url.Parse(uri+index)
+	u, _ := url.Parse(uri + index)
 	es, _ := NewElasticSearch(u)
 
 	time.Sleep(1 * time.Second)
@@ -47,4 +47,3 @@ func TestAddMapping(t *testing.T) {
 
 	TestCleanIndex(t)
 }
-
