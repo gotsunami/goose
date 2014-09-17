@@ -102,7 +102,7 @@ func (se *ElasticSearch) Get(object ElasticObject) (bool, error) {
 	}
 	body := strings.NewReader(string(jsondata))
 
-	resp, err := se.sendRequestAndGetResponse(GET, se.serverUrl+se.basePath+path+object.Key(), body)	
+	resp, err := se.sendRequestAndGetResponse(GET, se.serverUrl+se.basePath+path+object.Key(), body)
 	defer resp.Body.Close()
 	if err != nil {
 		return false, err
@@ -132,7 +132,7 @@ func (se *ElasticSearch) Delete(object ElasticObject) error {
 	if err != nil {
 		return err
 	}
-	return se.sendRequest(DELETE, se.serverUrl+se.basePath+path+object.Key(), nil)	
+	return se.sendRequest(DELETE, se.serverUrl+se.basePath+path+object.Key(), nil)
 }
 
 // deletes objects with a `query`
