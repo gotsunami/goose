@@ -34,8 +34,198 @@
           <p><img src="http://go-tsunami.com/assets/images/gooseLogo.png" alt="goose logo"></p>
 
 <h1>
-<a id="goose-a-golang-library-for-elastic-search" class="anchor" href="#goose-a-golang-library-for-elastic-search" aria-hidden="true"><span class="octicon octicon-link"></span></a>
-<em>goose</em>, a Golang library for Elastic Search</h1>
+<a id="goose-a-golang-api-for-elastic-search" class="anchor" href="#goose-a-golang-api-for-elastic-search" aria-hidden="true"><span class="octicon octicon-link"></span></a>goose, a golang API for Elastic Search</h1>
+
+<p>goose is an attempt to write a library to easily use the power of elastic search within a golang program.
+The coverage of elastic functionalities is currently quite low but allows one to use the basics:</p>
+
+<ul>
+<li>CRUD operations on indexes</li>
+<li>Add mapping</li>
+<li>Search</li>
+<li>Sort</li>
+</ul>
+
+<p>It takes advantages of golang interface concept to offer flexibility. A really cool feature is the <code>QueryBuilder</code>!</p>
+
+<h2>
+<a id="requirements" class="anchor" href="#requirements" aria-hidden="true"><span class="octicon octicon-link"></span></a>Requirements</h2>
+
+<p>goose requires what it exists for: golang and elastic search.
+The current version of goose works with golang 1.3 and elastic search 1.x</p>
+
+<h2>
+<a id="installation" class="anchor" href="#installation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Installation</h2>
+
+<p>Use <code>go get</code>:</p>
+
+<pre><code>go get github.com/gotsunami/goose
+</code></pre>
+
+<h2>
+<a id="powerful-query-builders" class="anchor" href="#powerful-query-builders" aria-hidden="true"><span class="octicon octicon-link"></span></a>Powerful query builders!</h2>
+
+<p>ES formalism is powerful but quite uneasy to learn or to write as it is not very human readable.</p>
+
+<p>The idea of query builder is to create the ES requests without having to actually write the json content of the request. In addition, some request need PUSH, other need PUT or DELETE, query builders know which one to use.</p>
+
+<p>There are two kinds of builders in goose right now detailed in the following sections:</p>
+
+<ul>
+<li>Mapping builders</li>
+<li>Search builders</li>
+</ul>
+
+<h2>
+<a id="elasticsearch" class="anchor" href="#elasticsearch" aria-hidden="true"><span class="octicon octicon-link"></span></a>ElasticSearch</h2>
+
+<p>As suggested in elastic search documentation, one should open only one instance of a client to communicate with the elastic search server. In goose, this client is the type <code>ElasticSearch</code>. It will do most of the job.</p>
+
+<p>In goose, an instance corresponds to an index so when you create an <code>ElasticSearch</code>, you must specify the index. You can create an instance as a global variable like that:</p>
+
+<pre><code>u, err := url.Parse("http://localhost:9200/my_index/")
+es, err := goose.NewElasticSearch(u)
+</code></pre>
+
+<p>Note: each time <code>es</code> appears in the following document, it refers to the global instance of <code>ElasticSearch</code></p>
+
+<h2>
+<a id="elasticobject" class="anchor" href="#elasticobject" aria-hidden="true"><span class="octicon octicon-link"></span></a>ElasticObject</h2>
+
+<p>goose also uses an interface called <code>ElasticObject</code> for most API calls.
+This interface must define a function called <code>Key()</code> that can compute an unique key for each instance.
+Once your data structure implements <code>ElasticObject</code>, you are almost done! (well, almost I said...)</p>
+
+<p>For instance:</p>
+
+<pre><code>type HQ struct {
+Company  string `json:"company"`
+Country  uint64 `json:"country"`
+Location goose.Location `json:"location"`
+}
+
+func (hq *HQ) Key() string {
+return fmt.Sprintf("%s_%d", hq.Company, hq.Country)
+}
+</code></pre>
+
+<h2>
+<a id="indexes" class="anchor" href="#indexes" aria-hidden="true"><span class="octicon octicon-link"></span></a>Indexes</h2>
+
+<p>First things first, basic index operations. As a <code>ElasicSearch</code> instance matches an unique index, it is pretty straightforward:</p>
+
+<pre><code>  err := es.CreateIndex()
+  err = es.CreateIndexIfNeeded()
+  err = es.OpenIndex()
+  err = es.CloseIndex()
+  err = es.DeleteIndex()
+</code></pre>
+
+<p>Refer to elastic search documentation to know more about indexes: <a href="http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/indices.html">http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/indices.html</a></p>
+
+<h2>
+<a id="crud" class="anchor" href="#crud" aria-hidden="true"><span class="octicon octicon-link"></span></a>CRUD</h2>
+
+<p>The <code>ElasticSearch</code> provides a set of functions for CRUD operations:</p>
+
+<pre><code>hq := &amp;HQ{Company:"go-tsunami", Country:33, Location:goose.Location{48.865618, 2.370985}}
+err := es.Insert(hq)
+found, err := es.Get(hq)
+hq.Company = "Go Tsunami"
+err = es.Update(hq)
+err = es.Delete(hq)
+</code></pre>
+
+<p>An additional  <code>DeleteByQuery</code> is available to delete a set of objects.</p>
+
+<p>TODO: <code>UpdateByQuery</code></p>
+
+<p>Refer to elastic search documentation for more information or to contribute: <a href="http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/docs.html#docs">http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/docs.html#docs</a></p>
+
+<h2>
+<a id="mapping" class="anchor" href="#mapping" aria-hidden="true"><span class="octicon octicon-link"></span></a>Mapping</h2>
+
+<p>Currently handled mapping types are:</p>
+
+<ul>
+<li>date</li>
+<li>geo_point</li>
+<li>string</li>
+<li>long</li>
+</ul>
+
+<p>Here is an exemple of how to use a <code>MappingBuilder</code> to add a <code>geo_point</code> mapping to field Location of type HQ:</p>
+
+<pre><code> mb := NewMappingBuilder().AddMapping("location", TYPE_GEOPOINT)
+ err := es.SetMapping(&amp;HQ{}, mb)
+</code></pre>
+
+<p>References:
+<a href="http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/indices-put-mapping.html">http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/indices-put-mapping.html</a></p>
+
+<h2>
+<a id="search" class="anchor" href="#search" aria-hidden="true"><span class="octicon octicon-link"></span></a>Search</h2>
+
+<p>At last, here we are, ready to make search queries!</p>
+
+<p>The query builder currently handles the following search criteria:</p>
+
+<ul>
+<li>geo_distance</li>
+<li>geo_boundingbox</li>
+<li>geo_polygon</li>
+<li>should</li>
+<li>must</li>
+<li>facetting</li>
+<li>fuzzy search</li>
+<li>range</li>
+<li>greater or lower than</li>
+</ul>
+
+<p>Here is an example:</p>
+
+<pre><code>qb = qb.SetTerm("Company", "Go Tsunami")
+qb = qb.AddGeoBoundingBox("location",
+    goose.Location{-180, 90}
+    goose.Location{180, -90}
+
+total, err := es.Count(&amp;HQ{})
+if err != nil {
+    return nil, err
+}
+
+qb.Size = total
+results, err := es.Search(&amp;HQ{}, qb)
+if err != nil {
+    return nil, err
+}
+
+for _, match := range results.Hits.Data {
+    hq, ok := match.Object.(*HQ)
+    if !ok {
+        return ids, errors.New(fmt.Sprintf("ElasticSearch returned an invalid object (%v)", match.Src))
+    }
+    fmt.Println("An HQ was found for Go Tsunami at GPS coordinates %v", hq.Location)
+}
+</code></pre>
+
+<h2>
+<a id="more" class="anchor" href="#more" aria-hidden="true"><span class="octicon octicon-link"></span></a>More</h2>
+
+<p>Source code contains a lot of comments, especially in the query builder. You can find a full example of a dumb application in example/hq.go.</p>
+
+<p>You can play with it:</p>
+
+<pre><code>go build example/hq.go
+./hq
+</code></pre>
+
+<p>If you want to run queries on the created index, you can find it at <code>http://localhost:9200/hq/main__hq</code></p>
+
+<h2>
+<a id="contribute" class="anchor" href="#contribute" aria-hidden="true"><span class="octicon octicon-link"></span></a>Contribute</h2>
+
+<p>goose is an ongoing work, we'd be pleased to review any pull request!  </p>
         </section>
 
         <footer>
