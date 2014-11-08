@@ -140,9 +140,6 @@ func (se *ElasticSearch) DeleteByQuery(object ElasticObject, q *QueryBuilder) (*
 	if q == nil {
 		return nil, errors.New("Query is not valid")
 	}
-	if se == nil {
-		return nil, errors.New("Search Engine has not been initialized")
-	}
 	path, err := buildPath(object)
 	if err != nil {
 		return nil, err
