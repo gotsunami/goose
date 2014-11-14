@@ -20,8 +20,9 @@ Installation
 ------------
 
 Use `go get`:
-
-    go get github.com/gotsunami/goose
+```go
+go get github.com/gotsunami/goose
+```
 
 Powerful query builders!
 ------------------------
@@ -41,8 +42,10 @@ As suggested in elastic search documentation, one should open only one instance 
 
 In goose, an instance corresponds to an index so when you create an `ElasticSearch`, you must specify the index. You can create an instance as a global variable like that:
 
-    u, err := url.Parse("http://localhost:9200/my_index/")
-    es, err := goose.NewElasticSearch(u)
+```go
+u, err := url.Parse("http://localhost:9200/my_index/")
+es, err := goose.NewElasticSearch(u)
+```
 
 Note: each time `es` appears in the following document, it refers to the global instance of `ElasticSearch`
 
@@ -55,26 +58,29 @@ Once your data structure implements `ElasticObject`, you are almost done! (well,
 
 For instance:
 
-    type HQ struct {
-	Company  string `json:"company"`
-	Country  uint64 `json:"country"`
-	Location goose.Location `json:"location"`
-    }
+```go
+type HQ struct {
+    Company  string `json:"company"`
+    Country  uint64 `json:"country"`
+    Location goose.Location `json:"location"`
+}
 
-    func (hq *HQ) Key() string {
-	return fmt.Sprintf("%s_%d", hq.Company, hq.Country)
-    }
+func (hq *HQ) Key() string {
+    return fmt.Sprintf("%s_%d", hq.Company, hq.Country)
+}
+```
 
 Indexes
 -------
 
 First things first, basic index operations. As a `ElasicSearch` instance matches an unique index, it is pretty straightforward:
-
-      err := es.CreateIndex()
-      err = es.CreateIndexIfNeeded()
-      err = es.OpenIndex()
-      err = es.CloseIndex()
-      err = es.DeleteIndex()
+```go
+err := es.CreateIndex()
+err = es.CreateIndexIfNeeded()
+err = es.OpenIndex()
+err = es.CloseIndex()
+err = es.DeleteIndex()
+```
 
 Refer to elastic search documentation to know more about indexes: http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/indices.html
 
@@ -83,12 +89,14 @@ CRUD
 
 The `ElasticSearch` provides a set of functions for CRUD operations:
 
-    hq := &HQ{Company:"go-tsunami", Country:33, Location:goose.Location{48.865618, 2.370985}}
-    err := es.Insert(hq)
-    found, err := es.Get(hq)
-    hq.Company = "Go Tsunami"
-    err = es.Update(hq)
-    err = es.Delete(hq)
+```go
+hq := &HQ{Company:"go-tsunami", Country:33, Location:goose.Location{48.865618, 2.370985}}
+err := es.Insert(hq)
+found, err := es.Get(hq)
+hq.Company = "Go Tsunami"
+err = es.Update(hq)
+err = es.Delete(hq)
+```
 
 An additional  `DeleteByQuery` is available to delete a set of objects.
 
@@ -107,8 +115,10 @@ Currently handled mapping types are:
 
 Here is an exemple of how to use a `MappingBuilder` to add a `geo_point` mapping to field Location of type HQ:
 
-     mb := NewMappingBuilder().AddMapping("location", TYPE_GEOPOINT)
-     err := es.SetMapping(&HQ{}, mb)
+```go
+mb := NewMappingBuilder().AddMapping("location", TYPE_GEOPOINT)
+err := es.SetMapping(&HQ{}, mb)
+```
 
 References:
 http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/indices-put-mapping.html
@@ -130,31 +140,32 @@ The query builder currently handles the following search criteria:
 - greater or lower than
 
 Here is an example:
+```go
+qb = qb.SetTerm("Company", "Go Tsunami")
+qb = qb.AddGeoBoundingBox("location",
+    goose.Location{-180, 90},
+    goose.Location{180, -90})
 
-	qb = qb.SetTerm("Company", "Go Tsunami")
-	qb = qb.AddGeoBoundingBox("location",
-		goose.Location{-180, 90}
-		goose.Location{180, -90}
+total, err := es.Count(&HQ{})
+if err != nil {
+    return nil, err
+}
 
-	total, err := es.Count(&HQ{})
-	if err != nil {
-		return nil, err
-	}
+qb.Size = total
+results, err := es.Search(&HQ{}, qb)
+if err != nil {
+    return nil, err
+}
 
-	qb.Size = total
-	results, err := es.Search(&HQ{}, qb)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, match := range results.Hits.Data {
-		hq, ok := match.Object.(*HQ)
-		if !ok {
-			return ids, errors.New(fmt.Sprintf("ElasticSearch returned an invalid object (%v)", match.Src))
-		}
-		fmt.Println("An HQ was found for Go Tsunami at GPS coordinates %v", hq.Location)
-	}
-
+for _, match := range results.Hits.Data {
+    hq, ok := match.Object.(*HQ)
+    if !ok {
+        return ids, errors.New(
+            fmt.Sprintf("ElasticSearch returned an invalid object (%v)", match.Src))
+    }
+    fmt.Println("An HQ was found for Go Tsunami at GPS coordinates %v", hq.Location)
+}
+```
 
 More
 ----
@@ -162,9 +173,10 @@ More
 Source code contains a lot of comments, especially in the query builder. You can find a full example of a dumb application in example/hq.go.
 
 You can play with it:
-
-    go build example/hq.go
-    ./hq
+```go
+go build example/hq.go
+./hq
+```
 
 If you want to run queries on the created index, you can find it at `http://localhost:9200/hq/main__hq`
 
