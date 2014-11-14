@@ -1,5 +1,7 @@
 [![GoDoc](https://godoc.org/github.com/gotsunami/goose?status.svg)](https://godoc.org/github.com/gotsunami/goose)
 
+![logo](http://go-tsunami.com/assets/images/gooseLogo.png)
+
 goose, a golang API for Elastic Search
 ======================================
 
