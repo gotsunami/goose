@@ -182,7 +182,9 @@ type callback func(*http.Response) error
 // Sends HTTP request to search engine
 func (se *ElasticSearch) sendRequest(m HttpMethod, path string, body io.Reader) error {
 	resp, err := se.sendRequestAndGetResponse(m, path, body)
-	resp.Body.Close()
+	if err == nil && resp != nil && resp.Body != nil {
+		resp.Body.Close()
+	}
 	return err
 }
 
