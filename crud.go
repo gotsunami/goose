@@ -53,9 +53,6 @@ func buildPath(object ElasticObject) (string, error) {
 
 // adds an element to the index. Caller must ensure that id is unique for each inserted object.
 func (se *ElasticSearch) Insert(object ElasticObject) error {
-	if se == nil {
-		return errors.New("Search Engine has not been initialized")
-	}
 	path, err := buildPath(object)
 	if err != nil {
 		return err
@@ -71,9 +68,6 @@ func (se *ElasticSearch) Insert(object ElasticObject) error {
 
 // updates an element in the index. TODO: check _update
 func (se *ElasticSearch) Update(object ElasticObject) error {
-	if se == nil {
-		return errors.New("Search Engine has not been initialized")
-	}
 	path, err := buildPath(object)
 	if err != nil {
 		return err
@@ -89,9 +83,6 @@ func (se *ElasticSearch) Update(object ElasticObject) error {
 
 // adds an element to the index. Caller must ensure that id is unique for each inserted object.
 func (se *ElasticSearch) Get(object ElasticObject) (bool, error) {
-	if se == nil {
-		return false, errors.New("Search Engine has not been initialized")
-	}
 	path, err := buildPath(object)
 	if err != nil {
 		return false, err
@@ -125,9 +116,6 @@ func (se *ElasticSearch) Get(object ElasticObject) (bool, error) {
 
 // deletes an element from the index
 func (se *ElasticSearch) Delete(object ElasticObject) error {
-	if se == nil {
-		return errors.New("Search Engine has not been initialized")
-	}
 	path, err := buildPath(object)
 	if err != nil {
 		return err
@@ -151,9 +139,6 @@ type deleteResponse struct {
 func (se *ElasticSearch) DeleteByQuery(object ElasticObject, q *QueryBuilder) (*DeletedIndex, error) {
 	if q == nil {
 		return nil, errors.New("Query is not valid")
-	}
-	if se == nil {
-		return nil, errors.New("Search Engine has not been initialized")
 	}
 	path, err := buildPath(object)
 	if err != nil {
