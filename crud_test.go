@@ -8,6 +8,32 @@ import (
 	"time"
 )
 
+type tT struct {
+	path string
+}
+
+func (t *tT) Key() string {
+	return t.path
+}
+
+func (t *tT) BuildPath() string {
+	return t.path
+}
+
+func TestBuildPath(t *testing.T) {
+	testPath := "TestPath/"
+	obj := &tT{
+		path: testPath,
+	}
+	path, err := buildPath(obj)
+	if err != nil {
+		t.Error(err)
+	}
+	if path != testPath {
+		t.Errorf("path should be '%s', it's '%s'\n", testPath, path)
+	}
+}
+
 // consts and types are all defined in es_test.go
 func TestCrudOperations(t *testing.T) {
 	u, _ := url.Parse(uri + index)
