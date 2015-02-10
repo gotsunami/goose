@@ -22,7 +22,7 @@ type ElasticObject interface {
 // - trailing slash
 // - at least two character long (including the trailing slash)
 func buildPath(object ElasticObject) (string, error) {
-	v := reflect.Indirect(reflect.ValueOf(object))
+	v := reflect.ValueOf(object)
 	t := v.Type()
 	if t == nil {
 		return "", errors.New("Object cannot be nil")
