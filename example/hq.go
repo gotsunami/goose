@@ -6,14 +6,14 @@ import (
 	"os"
 	"time"
 
-	"github.com/gotsunami/goose"
+	"github.com/zaibon/goose"
 )
 
 var es *goose.ElasticSearch
 
 type HQ struct {
-	Company  string `json:"company"`
-	Country  uint64 `json:"country"`
+	Company  string         `json:"company"`
+	Country  uint64         `json:"country"`
 	Location goose.Location `json:"location"`
 }
 
@@ -27,12 +27,12 @@ func printErrAndExit(err error, code int) {
 }
 
 func main() {
-    u, err := url.Parse("http://localhost:9200/hq/")
+	u, err := url.Parse("http://localhost:9200/hq/")
 	if err != nil {
 		printErrAndExit(err, 1)
 	}
 
-    if es, err = goose.NewElasticSearch(u); err != nil {
+	if es, err = goose.NewElasticSearch(u); err != nil {
 		printErrAndExit(err, 2)
 	}
 	// No need to create index for HQs, NewElasticSearch did it
@@ -43,12 +43,12 @@ func main() {
 	}
 
 	hqi := &HQ{"Go Tsunami", 33, goose.Location{48.865618, 2.370985}}
-    if err = es.Insert(hqi); err != nil {
+	if err = es.Insert(hqi); err != nil {
 		printErrAndExit(err, 4)
 	}
 
 	time.Sleep(1)
-	hqf := HQ{Company:"Go Tsunami", Country: 33}
+	hqf := HQ{Company: "Go Tsunami", Country: 33}
 	f, err := es.Get(&hqf)
 	if err != nil {
 		printErrAndExit(err, 5)

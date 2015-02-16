@@ -1,4 +1,4 @@
-[![GoDoc](https://godoc.org/github.com/gotsunami/goose?status.svg)](https://godoc.org/github.com/gotsunami/goose)
+[![GoDoc](https://godoc.org/github.com/zaibon/goose?status.svg)](https://godoc.org/github.com/zaibon/goose)
 
 ![logo](http://go-tsunami.com/assets/images/gooseLogo.png)
 
@@ -25,7 +25,7 @@ Installation
 
 Use `go get`:
 ```go
-go get github.com/gotsunami/goose
+go get github.com/zaibon/goose
 ```
 
 Powerful query builders!
