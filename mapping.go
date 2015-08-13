@@ -13,7 +13,18 @@ const (
 	TYPE_DATE     = MappingType("date")
 	TYPE_GEOPOINT = MappingType("geo_point")
 	TYPE_STRING   = MappingType("string")
-	TYPE_LONG     = MappingType("long")
+
+	TYPE_BYTE    = MappingType("byte")
+	TYPE_SHORT   = MappingType("short")
+	TYPE_INTEGER = MappingType("integer")
+	TYPE_LONG    = MappingType("long")
+
+	TYPE_FLOAT  = MappingType("float")
+	TYPE_DOUBLE = MappingType("double")
+
+	TYPE_BOOLEAN = MappingType("binary")
+
+	TYPE_NULL = MappingType("null")
 )
 
 // MappingBuilder has helper functions to build JSON query strings
