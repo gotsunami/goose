@@ -145,7 +145,7 @@ var engine *ElasticSearch
 // Search engine implementation for elasticsearch.
 type ElasticSearch struct {
 	serverUrl string
-	basePath  string // defaults to /bf/
+	basePath  string
 	lock      chan bool
 	stype     string
 }

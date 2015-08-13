@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"reflect"
+	"regexp"
 	"strings"
 )
 
@@ -66,6 +67,11 @@ func (se *ElasticSearch) search(object ElasticObject, qb *QueryBuilder, stype st
 // performs a search with a (supposedly) valid json string.
 // It is strongly adviced not to used this method except if you know exactly
 // what you are doing and/or if the QueryBuilder is missing the filter you want
+
+// WARNING: this is a hack for a project where the mapping was not properly set before indexing 6M objects. Cannot reindex right now
+// This must be removed at some point
+var sctouint *Regexp = regexp.MustCompile("([0-9]).([0-9]+)e\\+06")
+
 func (se *ElasticSearch) SearchRawJSON(object ElasticObject, jsondata string) (*resultSet, error) {
 	path, err := buildPath(object)
 	if err != nil {
@@ -93,6 +99,7 @@ func (se *ElasticSearch) SearchRawJSON(object ElasticObject, jsondata string) (*
 
 	for cnt, r := range rset.Hits.Data {
 		bj, _ := json.Marshal(r.Src)
+		bj = sctouint.ReplaceAll(jsondata, []byte("$1$2"))
 		no := reflect.New(v).Interface()
 		err = json.Unmarshal(bj, no)
 		if err != nil {
