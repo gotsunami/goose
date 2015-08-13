@@ -70,7 +70,7 @@ func (se *ElasticSearch) search(object ElasticObject, qb *QueryBuilder, stype st
 
 // WARNING: this is a hack for a project where the mapping was not properly set before indexing 6M objects. Cannot reindex right now
 // This must be removed at some point
-var sctouint *Regexp = regexp.MustCompile("([0-9]).([0-9]+)e\\+06")
+var sctouint *regexp.Regexp = regexp.MustCompile("([0-9]).([0-9]+)e\\+06")
 
 func (se *ElasticSearch) SearchRawJSON(object ElasticObject, jsondata string) (*resultSet, error) {
 	path, err := buildPath(object)
@@ -99,7 +99,7 @@ func (se *ElasticSearch) SearchRawJSON(object ElasticObject, jsondata string) (*
 
 	for cnt, r := range rset.Hits.Data {
 		bj, _ := json.Marshal(r.Src)
-		bj = sctouint.ReplaceAll(jsondata, []byte("$1$2"))
+		bj = sctouint.ReplaceAll(bj, []byte("$1$2"))
 		no := reflect.New(v).Interface()
 		err = json.Unmarshal(bj, no)
 		if err != nil {
