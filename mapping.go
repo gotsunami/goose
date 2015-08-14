@@ -96,7 +96,7 @@ func (se *ElasticSearch) SetMappingRawJSON(object ElasticObject, mapping string)
 
 	body := strings.NewReader(mapping)
 
-	return se.sendRequest(PUT, se.serverUrl+se.basePath+path+actionMapping, body)
+	return se.sendRequest(PUT, se.serverUrl+se.basePath+path+actionMappings, body)
 }
 
 // gets the current mapping of the object
@@ -107,7 +107,23 @@ func (se *ElasticSearch) GetMapping(object ElasticObject) (string, error) {
 		return "", err
 	}
 
-	resp, err := se.sendRequestAndGetResponse(GET, se.serverUrl+se.basePath+path+actionMapping, nil)
+	resp, err := se.sendRequestAndGetResponse(GET, se.serverUrl+se.basePath+path+actionMappings, nil)
+	defer resp.Body.Close()
+	if err != nil {
+		return "", err
+	}
+	bytes, err := ioutil.ReadAll(resp.Body)
+	return string(bytes), err
+}
+
+// deletes the current mapping of the object along with its data
+func (se *ElasticSearch) DeleteMappingAndData(object ElasticObject) (string, error) {
+	path, err := buildPath(object)
+	if err != nil {
+		return "", err
+	}
+
+	resp, err := se.sendRequestAndGetResponse(DELETE, se.serverUrl+se.basePath+path+actionMapping, nil)
 	defer resp.Body.Close()
 	if err != nil {
 		return "", err

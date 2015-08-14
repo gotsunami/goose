@@ -25,13 +25,14 @@ const (
 	actionSettings = "_settings"
 	actionCount    = "_count"
 	// model actions
-	actionMapping = "_mappings"
-	actionSearch  = "_search"
-	actionUpdate  = "_update"
-	actionQuery   = "_query"
-	typeCount     = "?search_type=count"
-	typeScan      = "?search_type=scan&scroll=10m&size=10"
-	typeSearch    = "" // Basic search
+	actionMappings = "_mappings"
+	actionMapping  = "_mapping"
+	actionSearch   = "_search"
+	actionUpdate   = "_update"
+	actionQuery    = "_query"
+	typeCount      = "?search_type=count"
+	typeScan       = "?search_type=scan&scroll=10m&size=10"
+	typeSearch     = "" // Basic search
 
 	envelopeShape  = "envelope"
 	withinRelation = "within"
