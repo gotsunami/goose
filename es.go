@@ -178,6 +178,10 @@ func (se *ElasticSearch) handleResponse(r *http.Response) error {
 	return nil
 }
 
+func (se *ElasticSearch) ServerUrl() string {
+	return se.serverUrl
+}
+
 type callback func(*http.Response) error
 
 // Sends HTTP request to search engine
