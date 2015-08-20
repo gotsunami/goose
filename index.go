@@ -13,12 +13,12 @@ func (se *ElasticSearch) CreateIndex() error {
 func (se *ElasticSearch) IndexExists() (bool, error) {
 	resp, err := se.sendRequestAndGetResponse(GET, se.serverUrl+se.basePath+actionStats, nil)
 	if err != nil {
+		if resp != nil && resp.StatusCode == http.StatusNotFound {
+			return false, nil
+		}
 		return false, err
 	}
 	defer resp.Body.Close()
-	if resp.StatusCode == http.StatusNotFound {
-		return false, nil
-	}
 	return true, nil
 }
 
