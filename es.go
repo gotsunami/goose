@@ -24,6 +24,8 @@ const (
 	actionStats    = "_stats"
 	actionSettings = "_settings"
 	actionCount    = "_count"
+	actionBulk     = "_bulk"
+
 	// model actions
 	actionMappings = "_mappings"
 	actionMapping  = "_mapping"
