@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/zaibon/goose"
+	"github.com/gotsunami/goose"
 )
 
 var es *goose.ElasticSearch
