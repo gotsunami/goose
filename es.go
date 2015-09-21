@@ -24,14 +24,17 @@ const (
 	actionStats    = "_stats"
 	actionSettings = "_settings"
 	actionCount    = "_count"
+	actionBulk     = "_bulk"
+
 	// model actions
-	actionMapping = "_mappings"
-	actionSearch  = "_search"
-	actionUpdate  = "_update"
-	actionQuery   = "_query"
-	typeCount     = "?search_type=count"
-	typeScan      = "?search_type=scan&scroll=10m&size=10"
-	typeSearch    = "" // Basic search
+	actionMappings = "_mappings"
+	actionMapping  = "_mapping"
+	actionSearch   = "_search"
+	actionUpdate   = "_update"
+	actionQuery    = "_query"
+	typeCount      = "?search_type=count"
+	typeScan       = "?search_type=scan&scroll=10m&size=10"
+	typeSearch     = "" // Basic search
 
 	envelopeShape  = "envelope"
 	withinRelation = "within"
@@ -145,7 +148,7 @@ var engine *ElasticSearch
 // Search engine implementation for elasticsearch.
 type ElasticSearch struct {
 	serverUrl string
-	basePath  string // defaults to /bf/
+	basePath  string
 	lock      chan bool
 	stype     string
 }
@@ -175,6 +178,10 @@ func (se *ElasticSearch) handleResponse(r *http.Response) error {
 		return errors.New(fmt.Sprintf("HTTP code %d, ES error: %s", r.StatusCode, string(d)))
 	}
 	return nil
+}
+
+func (se *ElasticSearch) ServerUrl() string {
+	return se.serverUrl
 }
 
 type callback func(*http.Response) error

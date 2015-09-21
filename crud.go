@@ -1,6 +1,7 @@
 package goose
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -64,6 +65,40 @@ func (se *ElasticSearch) Insert(object ElasticObject) error {
 	body := strings.NewReader(string(jsondata))
 
 	return se.sendRequest(PUT, se.serverUrl+se.basePath+path+object.Key(), body)
+}
+
+// BulkInsert indexes several objects at once using the ES bulk API.
+func (se *ElasticSearch) BulkInsert(objects []ElasticObject) error {
+	if len(objects) == 0 {
+		return errors.New("no object to bulk insert")
+	}
+	path, err := buildPath(objects[0])
+	if err != nil {
+		return err
+	}
+	type index struct {
+		Id string `json:"_id"`
+	}
+	// Index action
+	type action struct {
+		Index index `json:"index"`
+	}
+	var buf bytes.Buffer
+	for _, object := range objects {
+		// Index action then source on next line
+		for _, d := range []interface{}{&action{index{object.Key()}}, object} {
+			jsondata, err := json.Marshal(d)
+			if err != nil {
+				return err
+			}
+			_, err = buf.Write(jsondata)
+			if err != nil {
+				return err
+			}
+			buf.Write([]byte("\n")) // Required
+		}
+	}
+	return se.sendRequest(POST, se.serverUrl+se.basePath+path+actionBulk, &buf)
 }
 
 // updates an element in the index. TODO: check _update

@@ -22,7 +22,8 @@ func (se *ElasticSearch) IndexExists() (bool, error) {
 	if resp != nil && resp.StatusCode == http.StatusNotFound {
 		return false, nil
 	}
-	return false, err
+	defer resp.Body.Close()
+	return true, nil
 }
 
 // silently creates an index if it does not exist. Intents creation only if no error
