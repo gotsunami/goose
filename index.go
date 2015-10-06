@@ -12,17 +12,16 @@ func (se *ElasticSearch) CreateIndex() error {
 // use _stats command to check that the index exists
 func (se *ElasticSearch) IndexExists() (bool, error) {
 	resp, err := se.sendRequestAndGetResponse(GET, se.serverUrl+se.basePath+actionStats, nil)
-	if err != nil {
-		return false, err
-	}
 	defer resp.Body.Close()
-	if err == nil {
-		return true, nil
-	}
+	// response is "IndexMissingException", so returns false and ignores error
 	if resp != nil && resp.StatusCode == http.StatusNotFound {
 		return false, nil
 	}
-	defer resp.Body.Close()
+	// returns any other error
+	if err != nil {
+		return false, err
+	}
+	// no error, index exists, returns true
 	return true, nil
 }
 
