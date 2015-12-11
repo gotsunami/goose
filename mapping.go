@@ -117,6 +117,8 @@ func (se *ElasticSearch) GetMapping(object ElasticObject) (string, error) {
 }
 
 // deletes the current mapping of the object along with its data
+// FIXME: won't work with ES 2.x. It is no longer possible to delete the mapping for a type.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/2.0/indices-delete-mapping.html
 func (se *ElasticSearch) DeleteMappingAndData(object ElasticObject) (string, error) {
 	path, err := buildPath(object)
 	if err != nil {

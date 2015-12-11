@@ -175,7 +175,7 @@ func NewElasticSearch(uri *url.URL) (*ElasticSearch, error) {
 func (se *ElasticSearch) handleResponse(r *http.Response) error {
 	if r.StatusCode != http.StatusOK && r.StatusCode != http.StatusCreated {
 		d, _ := ioutil.ReadAll(r.Body)
-		return errors.New(fmt.Sprintf("HTTP code %d, ES error: %s", r.StatusCode, string(d)))
+		return fmt.Errorf("HTTP code %d, ES error: %s", r.StatusCode, string(d))
 	}
 	return nil
 }
